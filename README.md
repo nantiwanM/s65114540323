@@ -32,7 +32,7 @@
 - เข้าไปยังโฟลเดอร์โปรเจกต์
 
   ```bash
-  cd ST-DSSI-68
+  cd s65114540323
   ```
   <p align="center">
     <img src="https://github.com/user-attachments/assets/b563d7ba-1cb2-4a0c-b032-d7fcf3613119" alt="clone" width="500"/>
