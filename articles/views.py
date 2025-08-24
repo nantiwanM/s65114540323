@@ -90,7 +90,7 @@ class ArticleDeleteView(LoginRequiredMixin, DeleteView):
 
         # ลบรูปภาพปกของบทความ (image) ออกจากระบบไฟล์ (filesystem) ของเซิร์ฟเวอร์
         # เรียกฟังก์ชัน delete_file เพื่อลบไฟล์รูปภาพบทความ
-        delete_file(article.image.path)
+        #delete_file(article.image.path)
 
         # ลบบทความออกจากฐานข้อมูล
         article.delete()

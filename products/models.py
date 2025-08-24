@@ -7,7 +7,7 @@ def upload_to(instance, filename):
 
 # ฟังก์ชันสำหรับกำหนดเส้นทางการอัปโหลดรูปภาพเพิ่มเติมของสินค้า
 def upload_gallery(instance, filename):
-    product_id = instance.product.id if instance.product.id else "0"
+    product_id = instance.product.id if instance.product.id else "1"
     return f"product/gallery/{product_id}_{filename}"
 
 
@@ -29,12 +29,6 @@ class Product(models.Model):
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
     cover_image = models.ImageField(
         upload_to=upload_to,
-        validators=[
-            FileExtensionValidator(
-                allowed_extensions=['jpg', 'jpeg', 'png'],
-                message="กรุณาอัปโหลดไฟล์ที่มีนามสกุล .jpg, .jpeg, หรือ .png เท่านั้น"
-            )
-        ]
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

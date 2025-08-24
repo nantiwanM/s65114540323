@@ -174,7 +174,7 @@ class DeleteImageView(View):
         image = get_object_or_404(ProductImage, id=image_id)
 
         # ลบรูปภาพออกจากระบบไฟล์
-        delete_file(image.image.path)
+        #delete_file(image.image.path)
 
         # ลบข้อมูลรูปภาพออกจากฐานข้อมูล
         image.delete()
@@ -192,12 +192,12 @@ class ProductDeleteView(LoginRequiredMixin, DeleteView):
 
         # ลบรูปภาพปกของสินค้า (cover_image) ออกจากระบบไฟล์ (filesystem) ของเซิร์ฟเวอร์
         # เรียกฟังก์ชัน delete_file เพื่อลบไฟล์รูปภาพปกสินค้า
-        delete_file(product.cover_image.path)
+        #delete_file(product.cover_image.path)
 
         # ลบรูปภาพที่เกี่ยวข้องจาก ProductImage ออกจากระบบไฟล์ (filesystem) ของเซิร์ฟเวอร์
-        product_images = product.images.all()
-        for image in product_images:
-            delete_file(image.image.path)
+        # product_images = product.images.all()
+        # for image in product_images:
+        #     delete_file(image.image.path)
 
         # ลบสินค้าและข้อมูลที่เกี่ยวข้องออกจากฐานข้อมูล
         product.delete()

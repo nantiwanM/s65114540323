@@ -11,6 +11,8 @@ import os
 import platform
 import environ
 
+import cloudinary
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -53,6 +55,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+        
+    'cloudinary',
+    'cloudinary_storage',
+
     "accounts",
     "products",
     "articles",
@@ -64,7 +70,7 @@ INSTALLED_APPS = [
     "tailwind",
     "theme",
 
-    "tinymce"
+    "tinymce",
 ]
 
 # ถ้า mode Dev เพิ่ม django_browser_reload
@@ -181,8 +187,8 @@ USE_I18N = True
 
 USE_TZ = False
 
-
 # Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.1/howto/static-files/
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
@@ -190,11 +196,28 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# Media settings (Cloudinary)
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': env('CLOUDINARY_NAME'),
+    'API_KEY': env('CLOUDINARY_KEY'),
+    'API_SECRET': env('CLOUDINARY_SECRET'),
+}
 
-# Media settings
-MEDIA_URL = '/media/'  # URL สำหรับเข้าถึงไฟล์
-MEDIA_ROOT = BASE_DIR / 'media'  # โฟลเดอร์เก็บไฟล์อัปโหลด
+# Storage config (Django 5.1+)
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+# STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# # Media settings
+# MEDIA_URL = '/media/'  # URL สำหรับเข้าถึงไฟล์
+# MEDIA_ROOT = BASE_DIR / 'media'  # โฟลเดอร์เก็บไฟล์อัปโหลด
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
