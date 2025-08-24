@@ -1,0 +1,124 @@
+{% load static tailwind_tags %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% tailwind_css %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CN Style Shop</title>
+    <style>
+        input[type="password"]::-ms-reveal {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex">
+        <!-- Left Image Section -->
+        <div class="w-1/2 hidden lg:flex bg-cover bg-top" style="background-image: url('{% static "images/bg-register.jpg" %}');">
+            <div class="absolute">
+                <a href="{% url 'shop' %}" >
+                    <img src="{% static "images/logo/Black_Logo.svg" %}" alt="Logo" class="w-2/4">
+                </a>
+            </div>
+        </div>
+        
+        <!-- Right Form Section -->
+        <div class="w-full lg:w-1/2 flex flex-col justify-center px-16 py-5 lg:px-32">
+            <div class="text-center mb-8">
+                <h1 class="text-xl font-bold text-black">สมัครสมาชิก</h1>
+                <h2 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 mt-4 tracking-tight">
+                    WELCOME TO<br>CN STYLE SHOP
+                </h2>
+            </div>
+
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- ช่องกรอกชื่อผู้ใช้ -->
+                <div>
+                    <label for="username" class="text-md font-medium text-gray-600">Username</label>
+                    {{ form.username }} 
+                    
+                    <!-- แสดงข้อความ error -->
+                    {% for error in form.username.errors %}
+                        <div class="text-red-600 text-xs mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                
+                <!-- ช่องกรอกอีเมล -->
+                <div>
+                    <label for="email" class="text-md font-medium text-gray-600">Email</label>
+                    {{ form.email }} 
+                
+                    <!-- แสดงข้อความ error -->
+                    {% for error in form.email.errors %}
+                        <div class="text-red-600 text-xs mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                
+                <!-- ช่องกรอกรหัสผ่าน -->
+                <div class="relative">
+                    <label for="password1" class="text-md font-medium text-gray-600">Password</label>
+                    <div class="mt-1 relative">
+                        {{ form.password1 }}
+
+                        <!-- ไอคอนลูกตา -->
+                        <img 
+                            id="togglePassword1" 
+                            src="{% static 'images/eye-close.svg' %}" 
+                            alt="Toggle Password Visibility" 
+                            data-open-icon="{% static 'images/eye-open.svg' %}"
+                            data-close-icon="{% static 'images/eye-close.svg' %}"
+                            class="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer w-5 h-5" 
+                            onclick="togglePassword('password1', 'togglePassword1')"
+                        />
+                    </div>
+                    
+                    <!-- แสดง help text -->
+                    <small class="text-xs text-gray-500 mt-1 block">{{ form.password1.help_text }}</small>
+                </div>
+                
+                <!-- ช่องยืนยันรหัสผ่าน -->
+                <div class="relative">
+                    <label for="password2" class="text-md font-medium text-gray-600">Confirm Password</label>
+                    <div class="mt-1 relative">
+                        {{ form.password2 }}
+
+                        <!-- ไอคอนลูกตา -->
+                        <img 
+                            id="togglePassword2" 
+                            src="{% static 'images/eye-close.svg' %}" 
+                            alt="Toggle Password Visibility" 
+                            data-open-icon="{% static 'images/eye-open.svg' %}"
+                            data-close-icon="{% static 'images/eye-close.svg' %}"
+                            class="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer w-5 h-5" 
+                            onclick="togglePassword('password2', 'togglePassword2')"
+                        />
+                    </div>
+                                        
+                    <!-- แสดงข้อความ error -->
+                    {% for error in form.password2.errors %}
+                        <div class="text-red-600 text-xs mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                
+                <!-- ปุ่ม register -->
+                <div>
+                    <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-full shadow-sm text-md font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        Register
+                    </button>
+                </div>
+            </form>
+            <p class="text-center mt-4 text-sm text-gray-500">
+                หากมีบัญชีผู้ใช้แล้ว คุณสามารถ 
+                <a href="{% url 'login' %}" class="text-blue-500 no-underline">เข้าสู่ระบบ</a>
+            </p>
+        </div>
+    </div>
+    
+    <script src="{% static 'js/accounts/toggle-password.js' %}"></script>
+
+</body>
+</html>

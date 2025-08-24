@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.log
+
+# Virtual environments
+venv/
+.env/
+.env.local
+
+# PyCharm
+.idea/
+
+# Mac/Windows OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Docker-related
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+*.db
+
+# Node.js
+node_modules/
+theme/static_src/node_modules/
+npm-debug.log

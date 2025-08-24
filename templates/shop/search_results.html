@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block page_padding %}pt-0{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex">
+    <!-- ฟอร์มค้นหา -->
+    <div class="w-1/5 bg-gradient-to-b from-gray-700 to-gray-800 p-2 sm:p-4 md:p-6 lg:p-8 shadow-lg min-h-screen overflow-y-auto">
+        <h3 class="text-lg font-bold mb-4 text-white">ตัวกรองสินค้า</h3>
+        <form method="get" action="{% url 'search_results' %}" class="space-y-6">
+            <!-- หมวดหมู่สินค้า -->
+            <h4 class="font-semibold mb-2 border-b pb-2 text-white">ประเภทสินค้า</h4>
+            <input type="hidden" name="search" value="{{ request.GET.search }}">
+            <div class="grid lg:grid-cols-2 gap-2">
+                <label class="category-label block text-center p-2 border rounded-lg text-sm font-medium cursor-pointer
+                    {% if not request.GET.category %}bg-red-200 text-red-600 border-red-500
+                    {% else %}bg-white text-gray-700 border-gray-300 hover:bg-red-100{% endif %}"
+                    data-value="">
+                    <input type="radio" name="category" value="" class="hidden"
+                        {% if not request.GET.category %}checked{% endif %}>
+                    ทั้งหมด
+                </label>
+                {% for key, value in categories %}
+                    <label class="category-label block text-center p-2 border rounded-lg text-sm font-medium cursor-pointer
+                        {% if request.GET.category == key %}bg-red-200 text-red-600 border-red-500
+                        {% else %}bg-white text-gray-700 border-gray-300 hover:bg-red-100{% endif %}"
+                        data-value="{{ key }}">
+                        <input type="radio" name="category" value="{{ key }}" class="hidden"
+                            {% if request.GET.category == key %}checked{% endif %}>
+                        {{ value }}
+                    </label>
+                {% endfor %}
+            </div>
+
+            <!-- ตัวกรองช่วงราคา -->
+            <h4 class="font-semibold mt-6 mb-2 border-b pb-2 text-white">ช่วงราคา (บาท)</h4>
+            <div class="flex flex-col lg:flex-row gap-2">
+                <input type="number" name="min_price" placeholder="ต่ำสุด"
+                       class="input input-bordered w-full lg:w-1/2"
+                       value="{{ request.GET.min_price }}">
+                <input type="number" name="max_price" placeholder="สูงสุด"
+                       class="input input-bordered w-full lg:w-1/2"
+                       value="{{ request.GET.max_price }}">
+            </div>
+
+
+            <!-- ปุ่มกรองสินค้า -->
+            <div class="flex flex-col lg:flex-row gap-2 mt-8">
+                <a href="{% url 'search_results' %}"
+                    class="w-full lg:w-1/2 text-center bg-transparent border-2 border-gray-500 text-gray-300 hover:bg-gray-600 hover:text-white font-bold py-2 px-4 rounded">
+                    ล้างค่า
+                </a>
+                <button type="submit" class="w-full lg:w-1/2 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+                    กรองสินค้า
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ผลลัพธ์การค้นหา -->
+    <div class="max-w-5xl px-4 md:px-8 lg:mx-auto mt-10 flex-1">
+        <h1 class="text-xl font-bold mb-4">ผลลัพธ์การค้นหา</h1>
+        {% if products %}
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-10 ">
+                {% for product in products %}
+                <div class="relative bg-white border border-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                    <a href="{% url 'product_detail' product.pk %}" class="block">
+                        <figure>
+                            <img src="{{ product.cover_image.url }}" alt="{{ product.name }}"
+                                 class="w-full h-40 object-cover">
+                        </figure>
+                        <div class="p-3">
+                            <h3 class="text-sm font-medium text-gray-800 line-clamp-2">{{ product.name }}</h3>
+                            <div class="flex items-center justify-between mt-2">
+                                <span class="text-xs text-gray-500">{{ product.get_category_display }}</span>
+                                <span class="text-red-500 font-bold text-base">฿{{ product.min_price|default:"-" }}</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% empty %}
+                <p class="text-gray-500 col-span-4 text-center">ไม่มีสินค้าในขณะนี้</p>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% include "components/user/pagination.html" with page_obj=page_obj query_params=query_params %}
+        {% else %}
+            <p class="text-gray-500 text-center">ไม่พบสินค้าที่ตรงกับคำค้นหา</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".category-label").forEach(label => {
+            label.addEventListener("click", () => {
+                // รีเซ็ตปุ่มทั้งหมดให้เป็นสีปกติ
+                document.querySelectorAll(".category-label").forEach(lbl => {
+                    lbl.classList.remove("bg-red-200", "text-red-600", "border-red-500");
+                    lbl.classList.add("bg-white", "text-gray-700", "border-gray-300", "hover:bg-red-100");
+                });
+
+                // เปลี่ยนสีปุ่มที่ถูกเลือก
+                label.classList.add("bg-red-200", "text-red-600", "border-red-500");
+                label.classList.remove("bg-white", "text-gray-700", "border-gray-300", "hover:bg-red-100");
+
+                // ตั้งค่า checked ให้ input radio
+                label.querySelector("input").checked = true;
+            });
+        });
+    });
+</script>
+
+{% endblock %}

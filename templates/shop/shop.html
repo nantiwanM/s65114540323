@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load static %}
+{% block page_padding %}pt-0{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen pb-10">
+
+    <img src="{% static 'images/shop/shop.png' %}" alt="shop_image" class="w-screen h-40 sm:h-60 md:h-80">
+
+    <div class="max-w-5xl px-4 md:px-8 lg:mx-auto mt-10">
+
+        <div class="w-full bg-gray-700 rounded-lg shadow p-3 mb-6">
+            <h2 class="text-xl font-bold text-white mx-6">ประเภทสินค้า</h2>
+        </div>
+
+        <!-- ใช้ CSS Grid -->
+        <div class="max-w-4xl mx-auto bg-white rounded-lg p-4 shadow grid grid-cols-3 grid-rows-4 gap-4 h-[380px]">
+            <!-- กระโปรง -->
+            <a href="{% url 'search_results' %}?category=skirt"
+               class="relative bg-orange-100 p-4 rounded-lg row-span-3 flex flex-col justify-between shadow transition-transform hover:scale-105">
+                <div>
+                    <p class="text-sm font-semibold">SHOP FOR</p>
+                    <h3 class="text-md md:text-xl font-bold">กระโปรง</h3>
+                </div>
+                <img src="{% static 'images/shop/skirt.png' %}"  class="absolute bottom-0 right-3 w-32 h-auto" alt="กระโปรง">
+            </a>
+
+            <!-- เสื้อเบลาส์ -->
+            <a href="{% url 'search_results' %}?category=blouse"
+               class="relative bg-stone-200 p-4 rounded-lg row-span-2 flex flex-col justify-between shadow transition-transform hover:scale-105">
+                <div>
+                    <p class="text-sm font-semibold">SHOP FOR</p>
+                    <h3 class="text-md md:text-xl font-bold">เสื้อเบลาส์</h3>
+                </div>
+                <img src="{% static 'images/shop/blouse.png' %}" class="absolute bottom-0 right-0 w-28 h-auto" alt="เสื้อเบลาส์">
+            </a>
+
+            <!-- เสื้อยืด -->
+            <a href="{% url 'search_results' %}?category=tshirt"
+               class="relative bg-neutral-300 p-4 rounded-lg flex flex-col justify-between shadow transition-transform hover:scale-105">
+                <div>
+                    <p class="text-sm font-semibold">SHOP FOR</p>
+                    <h3 class="text-md md:text-xl font-bold">เสื้อยืด</h3>
+                </div>
+                <img src="{% static 'images/shop/tshirt.png' %}" class="absolute bottom-1 right-3 w-14 h-auto" alt="เสื้อยืด">
+            </a>
+
+            <!-- ชุดเดรส -->
+            <a href="{% url 'search_results' %}?category=dress"
+               class="relative bg-sky-100 p-4 rounded-lg row-span-2 flex flex-col justify-between shadow transition-transform hover:scale-105">
+                <div>
+                    <p class="text-sm font-semibold">SHOP FOR</p>
+                    <h3 class="text-md md:text-xl font-bold">ชุดเดรส</h3>
+                </div>
+                <img src="{% static 'images/shop/dress.png' %}" class="absolute bottom-0 right-1 w-28 h-auto" alt="ชุดเดรส">
+            </a>
+
+            <!-- เสื้อแจ็คเก็ต -->
+            <a href="{% url 'search_results' %}?category=jacket"
+                    class="relative bg-neutral-300 p-4 rounded-lg flex flex-col justify-between shadow transition-transform hover:scale-105">
+                <div>
+                    <p class="text-sm font-semibold">SHOP FOR</p>
+                    <h3 class="text-md md:text-xl font-bold">เสื้อแจ็คเก็ต</h3>
+                </div>
+                <img src="{% static 'images/shop/jacket.png' %}" class="absolute bottom-0 right-1 w-[72px] h-auto" alt="เสื้อแจ็คเก็ต">
+            </a>
+
+            <!-- กางเกงขาสั้น-->
+            <a href="{% url 'search_results' %}?category=shorts"
+                    class="relative bg-orange-200 p-4 rounded-lg flex flex-col justify-between shadow transition-transform hover:scale-105">
+                <div>
+                    <p class="text-sm font-semibold">SHOP FOR</p>
+                    <h3 class="text-md md:text-xl font-bold">กางเกงขาสั้น</h3>
+                </div>
+                <img src="{% static 'images/shop/shorts.png' %}" class="absolute bottom-1 right-1 w-16 h-auto" alt="กางเกงขาสั้น">
+            </a>
+
+            <!-- เสื้อเชิ้ต-->
+            <a href="{% url 'search_results' %}?category=shirt"
+                    class="relative bg-emerald-100 p-4 rounded-lg flex flex-col justify-between shadow transition-transform hover:scale-105">
+                <div>
+                    <p class="text-sm font-semibold">SHOP FOR</p>
+                    <h3 class="text-md md:text-xl font-bold">เสื้อเชิ้ต</h3>
+                </div>
+                <img src="{% static 'images/shop/shirt.png' %}" class="absolute bottom-0 right-0 w-24 h-auto" alt="เสื้อเชิ้ต">
+            </a>
+
+            <!-- ยีนส์ -->
+            <a href="{% url 'search_results' %}?category=jeans"
+                    class="relative bg-blue-200 p-4 rounded-lg flex flex-col justify-between shadow transition-transform hover:scale-105">
+                <div>
+                    <p class="text-sm font-semibold">SHOP FOR</p>
+                    <h3 class="text-xl font-bold">ยีนส์</h3>
+                </div>
+                <img src="{% static 'images/shop/jeans.png' %}" class="absolute bottom-0 right-2 w-20 h-auto" alt="ยีนส์">
+            </a>
+        </div>
+    </div>
+
+    <div class="max-w-5xl px-4 md:px-8 lg:mx-auto mt-10">
+        <div class="w-full bg-gray-700 rounded-lg shadow p-3 mb-6">
+            <h2 class="text-xl font-bold text-white mx-6">สินค้ามาใหม่</h2>
+        </div>
+
+        <div class="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {% for product in products %}
+            <div class="relative bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
+                <a href="{% url 'product_detail' product.pk %}" class="block">
+                    <figure>
+                        <img src="{{ product.cover_image.url }}" alt="{{ product.name }}"
+                             class="w-full h-40 object-cover">
+                    </figure>
+                    <div class="p-3">
+                        <h3 class="text-sm font-medium text-gray-800 line-clamp-2">{{ product.name }}</h3>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="text-xs text-gray-500">{{ product.get_category_display }}</span>
+                            <span class="text-red-500 font-bold text-base">฿{{ product.min_price|default:"-" }}</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <p class="text-gray-500 col-span-5 text-center">ไม่มีสินค้า</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

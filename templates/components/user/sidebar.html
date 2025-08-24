@@ -1,0 +1,98 @@
+{% load static %}
+
+<aside class="fixed top-0 left-0 z-30 w-72 h-screen pt-20 bg-white border-r border-gray-200 lg:block hidden" aria-label="Sidebar" id="sidebar">
+   <div class="h-full pt-2 px-5 overflow-y-auto">
+      <ul class="space-y-2 font-medium">
+        <!-- รูปและชื่อ -->
+          <li>
+              <div class="flex items-center p-4">
+                <!-- รูปโปรไฟล์ -->
+                <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="w-14 h-14 rounded-full object-cover border border-gray-300">
+
+                <!-- ข้อมูลผู้ใช้ -->
+                <div class="ml-4">
+                    <h2 class="text-lg font-semibold text-gray-800">{{ user.username }}</h2>
+                    <p class="text-gray-500">{{ user.email }}</p>
+                </div>
+            </div>
+          </li>
+
+          <!-- ขีดเส้นใต้ -->
+          <li>
+              <hr class="my-4 border-gray-300">
+          </li>
+
+          <!-- บัญชีของฉัน -->
+          <li>
+              {% url 'profile' as profile_url %}
+              <a href="{{ profile_url }}" class="flex items-center p-3 rounded-lg
+                  {% if request.path == profile_url %} bg-red-600 text-white font-semibold {% else %} text-gray-600 hover:bg-gray-200 {% endif %}">
+                  <span class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="{% if request.path == profile_url %} 2 {% else %} 1.5 {% endif %}" stroke="currentColor" class="w-5 h-5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                      </svg>
+                  </span>
+                  <span class="ml-3">บัญชีของฉัน</span>
+              </a>
+         </li>
+
+        <li>
+              {% url 'my_orders' as status %}
+              <a href="{{ status }}" class="flex items-center p-3 rounded-lg
+                  {% if request.path == status %} bg-red-600 text-white font-semibold {% else %} text-gray-600 hover:bg-gray-200 {% endif %}">
+                  <span class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="{% if request.path == status %} 2 {% else %} 1.5 {% endif %}" stroke="currentColor" class="w-5 h-5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3 1.5 1.5 3-3.75" />
+                      </svg>
+                  </span>
+                  <span class="ml-3">การซื้อของฉัน</span>
+              </a>
+         </li>
+
+          <!-- ออกจากระบบ -->
+          <li>
+            <button class="logoutBtn flex w-full items-center p-3 text-gray-600 rounded-lg hover:bg-gray-200">
+                <span class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                    <svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                       <path d="M7.5 18H4.16667C3.72464 18 3.30072 17.8244 2.98816 17.5118C2.67559 17.1993 2.5 16.7754 2.5 16.3333V4.66667C2.5 4.22464 2.67559 3.80072 2.98816 3.48816C3.30072 3.17559 3.72464 3 4.16667 3H7.5M13.3333 14.6667L17.5 10.5M17.5 10.5L13.3333 6.33333M17.5 10.5H7.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+               <span class="ml-3 text-base font-medium">ออกจากระบบ</span>
+            </button>
+          </li>
+      </ul>
+   </div>
+</aside>
+
+{% include 'components/alert/logout_dialog_user.html' %}
+
+<!-- Backdrop/Overlay สำหรับหน้าจอเล็ก -->
+<div id="overlay" class="fixed inset-0 bg-black bg-opacity-40 hidden z-20"></div>
+
+<script src="{% static 'js/accounts/logoutDialog.js' %}"></script>
+
+<script>
+      const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('overlay');
+
+      // เปิด Sidebar และ Overlay
+      toggleSidebarBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('hidden');
+        overlay.classList.toggle('hidden');
+      });
+
+      // คลิก Overlay เพื่อปิด Sidebar
+      overlay.addEventListener('click', () => {
+        sidebar.classList.add('hidden');
+        overlay.classList.add('hidden');
+      });
+</script>
+
+
+
+
+
+
+
+

@@ -1,0 +1,113 @@
+{% extends "base_admin.html" %}
+{% block extra_head %}
+    <style>
+           /* ซ่อน Scrollbar */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none; /* ซ่อน Scrollbar */
+        }
+
+        .scrollbar-hide {
+            scrollbar-width: none; /* ซ่อน Scrollbar สำหรับ Firefox */
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="md:px-8 min-h-screen pb-6">
+    <div class="flex flex-col sm:flex-row sm:justify-between items-center gap-4 mb-6">
+        <!-- ช่องค้นหารหัสและชื่อสินค้าและคำเชิงบวก/ลบ-->
+        <form method="GET" action="{% url 'product_analysis' %}" class="flex flex-wrap sm:flex-nowrap gap-2 w-full max-w-xl">
+            <!-- ช่องค้นหา -->
+            <div class="flex-grow">
+                <label for="search" class="sr-only">ค้นหา</label>
+                <input type="search"
+                       name="search"
+                       id="search"
+                       placeholder="ค้นหาด้วยรหัส, ชื่อสินค้า, คำเชิงบวก/ลบ"
+                       value="{{ request.GET.search  }}"
+                       class="px-4 py-2 border border-gray-300 rounded-md w-full"/>
+            </div>
+
+            <!-- ปุ่มค้นหา -->
+            <button type="submit"
+                    class="bg-blue-500 text-white px-4 py-2 rounded-md shadow flex-shrink-0 hover:bg-blue-600 transition">
+                ค้นหา
+            </button>
+
+             <!-- ลิงก์รีเซ็ต -->
+            <a href="{% url 'product_analysis' %}"
+               class="border border-gray-400 text-gray-700 px-4 py-2 rounded-md shadow-sm hover:bg-gray-100 hover:text-gray-900 transition duration-300 whitespace-nowrap text-center">
+                รีเซ็ต
+            </a>
+
+        </form>
+    </div>
+
+    <!-- ตารางแสดงสินค้าที่มีการวิเคราะ์ -->
+    <div class="overflow-x-auto rounded-lg shadow-lg">
+        <table class="min-w-full bg-white text-left">
+            <thead>
+                <tr class="bg-gray-300 text-gray-700 text-sm">
+                    <th class="px-2 py-3 min-w-[100px]">รหัสสินค้า</th>
+                    <th class="px-4 py-3 min-w-[150px]">สินค้า</th>
+                    <th class="px-2 py-3 min-w-[100px]">จำนวนรีวิวทั้งหมด</th>
+                    <th class="px-2 py-3 min-w-[100px]">เชิงบวก <span class="text-xs">(%)</span></th>
+                    <th class="px-2 py-3 min-w-[100px]">เป็นกลาง <span class="text-xs">(%)</span></th>
+                    <th class="px-2 py-3 min-w-[100px]">เชิงลบ <span class="text-xs">(%)</span></th>
+                    <th class="px-2 py-3 text-center min-w-[100px]">คำเชิงบวก</th>
+                    <th class="px-2 py-3 text-center min-w-[100px]">คำเชิงลบ</th>
+                </tr>
+            </thead>
+
+            <tbody id="article-list" class="divide-y divide-gray-200">
+                {% for product in products %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-4 py-3">{{ product.id }}</td>
+                        <td class="px-4 py-3">{{ product.name }}</td>
+                        <td class="px-4 py-3">{{ product.review_data.total_reviews }}</td>
+                        <td class="px-4 py-3">{{ product.review_data.positive_percentage|floatformat:2  }}</td>
+                        <td class="px-4 py-3">{{ product.review_data.neutral_percentage|floatformat:2 }}</td>
+                        <td class="px-4 py-3">{{ product.review_data.negative_percentage|floatformat:2 }}</td>
+                        <td class="border-l border-gray-200">
+                            <div class="flex space-x-2 overflow-x-auto p-3 max-w-[200px] scrollbar-hide">
+                                <!-- .items() เป็นเมธอดของ dictionary ใน Python ที่ใช้ดึง คู่ค่า (key, value) ออกมาในรูปแบบของ tuple -->
+                                {% for word, count in product.review_data.positive_word_count.items %}
+                                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-md whitespace-nowrap
+                                                    scroll-snap-align-start">
+                                        {{ word }} <span class="text-xs">({{ count }})</span>
+                                    </span>
+                                {% empty %}
+                                    <span class="text-gray-500 text-center block"> - </span>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td class="border-l border-gray-200">
+                            <div class="flex space-x-2 overflow-x-auto p-2 py-3 max-w-[200px] scrollbar-hide">
+                                {% for word, count in product.review_data.negative_word_count.items %}
+                                    <span class="px-3 py-1 bg-red-100 text-red-700 rounded-md whitespace-nowrap
+                                                    scroll-snap-align-start">
+                                        {{ word }} <span class="text-xs">({{ count }})</span>
+                                    </span>
+                                {% empty %}
+                                    <span class="text-gray-500 text-center block"> - </span>
+                                {% endfor %}
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="px-6 py-3 text-center text-gray-500">
+                        ไม่มีสินค้าที่มีการวิเคราะห์ข้อความรีวิว
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% include "components/admin/pagination.html" with page_obj=page_obj query_params=query_params %}
+
+</div>
+
+{% endblock %}

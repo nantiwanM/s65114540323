@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="min-h-screen max-w-5xl pb-10 px-4 md:px-8 lg:mx-auto">
+    <!-- แสดง messages success-->
+    {% include "components/alert/alert_message.html" with messages=messages %}
+
+    <div class=" bg-white p-12 rounded-xl shadow-lg flex flex-col md:flex-row gap-6">
+        <!-- รูปภาพสินค้า -->
+        <div class="w-full md:w-1/2 flex">
+            <!-- thumbnail Gallery รูปภาพเพิ่มเติม -->
+            <div class="flex flex-col justify-center gap-2 mr-4 h-[370px]">
+                  <img src="{{ product.cover_image.url }}" class="thumbnail w-16 h-16 object-cover rounded border-2  hover:border-red-500 cursor-pointer border-red-500"
+                    onclick="document.getElementById('main-image').src='{{ product.cover_image.url }}'; selectThumbnail(this)">
+
+                {% for image in images %}
+                <img src="{{ image.image.url }}" class="thumbnail w-16 h-16 object-cover rounded border-2 border-gray-300 hover:border-red-500 cursor-pointer"
+                    onclick="document.getElementById('main-image').src='{{ image.image.url }}'; selectThumbnail(this)">
+                {% endfor %}
+            </div>
+
+            <!-- รูปภาพสินค้า -->
+            <div class="flex-1 border border-gray-300 rounded overflow-hidden flex justify-center items-center h-[370px] shadow">
+                <img id="main-image" src="{{ product.cover_image.url }}" class="max-w-full max-h-full object-contain transition-transform duration-300">
+            </div>
+        </div>
+
+        <!-- รายละเอียดสินค้า -->
+        <div class="w-full md:w-1/2 md:ml-6">
+            <h1 class="text-2xl font-bold">{{ product.name }}</h1>
+
+            <div class="flex items-center text-md font-bold text-yellow-500 mt-2">
+                <span>{{ average_rating|floatformat:1 }}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-yellow-400 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 .587l3.668 7.431 8.167 1.185-5.917 5.766 1.396 8.142L12 18.897l-7.314 3.85 1.396-8.142-5.917-5.766 8.167-1.185z"/>
+                </svg>
+
+                <span class="ml-3 text-sm text-gray-600 font-medium">
+                    ขายแล้ว {{ sold_count }} ชิ้น
+                </span>
+            </div>
+
+            <!-- ราคา ตัวเลือกสินค้า และปุ่ม -->
+            <div id="product-options"
+                 hx-get="{% url 'product-options' product.id %}"
+                 hx-trigger="load"
+                 hx-target="#product-options"
+                 hx-swap="innerHTML"
+                 class="mt-4">
+            </div>
+
+            <!-- จำนวนสินค้า -->
+            <div class="flex items-center space-x-2 mt-8">
+                <h3 class="w-20">จำนวน</h3>
+                <button type="button" id="decrease" class="bg-gray-300 text-gray-700 px-3 py-1 rounded">−</button>
+                <label for="quantity" class="sr-only">จำนวน</label>
+                <input type="number" id="quantity" name="quantity" value="1" min="1"
+                       class="border-2 border-gray-200 w-14 md:w-20 py-1 rounded text-center"
+                       readonly
+                >
+                <button type="button" id="increase" class="bg-gray-300 text-gray-700 px-3 py-1 rounded">+</button>
+            </div>
+
+            <!-- ปุ่มกดเพิ่มรถเข็น/ซื้อสินค้า -->
+            <div class="flex flex-row space-x-4 mt-8">
+                <!-- เพิ่มลงรถเข็น -->
+                <form action="{% url 'add_cart' product.id %}" method="post" id="cart-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="option_id" id="cart-option-id">
+                    <input type="hidden" name="quantity" id="cart-quantity" value="1">
+
+                    <!-- ปุ่ม disabled ถ้ายังไม่ login -->
+                    <button type="submit"
+                            class="w-40 border border-red-500 px-4 py-2 rounded
+                                   {% if not user.is_authenticated %}
+                                        bg-gray-300 text-gray-600 cursor-not-allowed
+                                   {% else %}
+                                        bg-red-100 text-red-600
+                                   {% endif %}"
+                            id="add-to-cart"
+                            {% if not user.is_authenticated %}disabled{% endif %}>
+                            เพิ่มลงรถเข็น
+                    </button>
+
+                    <!-- ข้อความแจ้งเตือนด้านล่างปุ่ม -->
+                    {% if not user.is_authenticated %}
+                        <p class="text-xs text-red-600 mt-2">
+                            กรุณา <a href="{% url 'login' %}?next={% url 'product_detail' product.id %}" class="underline">เข้าสู่ระบบ</a> เพื่อเพิ่มสินค้าลงรถเข็น
+                        </p>
+                    {% endif %}
+                </form>
+
+                <!-- ซื้อสินค้า -->
+                <form action="{% url 'buy_now' %}" method="get" id="buy-now-form">
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <input type="hidden" name="option_id" id="buy-option-id">
+                    <input type="hidden" name="quantity" id="buy-quantity" value="1">
+
+                    <button type="submit"
+                            class="w-40 bg-red-500 text-white px-4 py-2 rounded disabled:cursor-not-allowed" id="buy-now" disabled>
+                        ซื้อสินค้า
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- กล่องรายละเอียดสินค้า -->
+    <div class=" bg-white p-6 md:p-10 rounded-xl shadow-lg mt-4">
+        <h2 class="text-xl font-semibold border-b pb-3 mb-4">รายละเอียดสินค้า</h2>
+        <div class="text-gray-700 mx-8">
+            {{ product.description }}
+        </div>
+    </div>
+
+    <!-- กล่องรีวิว -->
+    <div class=" bg-white p-6 md:p-10 rounded-xl shadow-lg mt-4">
+        <h2 class="text-xl font-semibold border-b pb-3 mb-4">รีวิวสินค้า</h2>
+
+        <div class="mx-8">
+            <div class="flex items-center gap-2">
+                <span class="text-lg font-semibold ">คะแนนเฉลี่ย:</span>
+                <div class="flex items-center text-yellow-500 text-2xl font-bold">
+                    {{ average_rating|floatformat:1 }}
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="w-5 h-5 text-yellow-400 ml-1"
+                         fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 .587l3.668 7.431 8.167 1.185-5.917 5.766 1.396 8.142L12 18.897l-7.314 3.85 1.396-8.142-5.917-5.766 8.167-1.185z"/>
+                    </svg>
+                </div>
+                <span>( {{ total_reviews }} )</span>
+            </div>
+
+            <!-- แถบเปอร์เซ็นต์อารมณ์ของรีวิว -->
+            <h3 class="mt-4 text-lg font-semibold">วิเคราะห์ข้อความรีวิวสินค้า</h3>
+
+            <div class="mt-2 space-y-2 mx-12 mb-6">
+                <div class="flex items-center">
+                    <span class="w-20 text-sm font-semibold text-green-600">คำเชิงบวก</span>
+                    <progress class="progress progress-success w-full" value="{{ polarity_percentages.positive|floatformat:1 }}" max="100"></progress>
+                    <span class="w-10 text-right text-sm text-gray-600 ml-2">{{ polarity_percentages.positive|floatformat:1 }}%</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="w-20 text-sm font-semibold text-gray-600">เป็นกลาง</span>
+                    <progress class="progress progress-base-300 w-full" value="{{ polarity_percentages.neutral|floatformat:1 }}" max="100"></progress>
+                    <span class="w-10 text-right text-sm text-gray-600 ml-2">{{ polarity_percentages.neutral|floatformat:1 }}%</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="w-20 text-sm font-semibold text-red-600">คำเชิงลบ</span>
+                    <progress class="progress progress-error w-full" value="{{ polarity_percentages.negative|floatformat:1 }}" max="100"></progress>
+                    <span class="w-10 text-right text-sm text-gray-600 ml-2">{{ polarity_percentages.negative|floatformat:1 }}%</span>
+                </div>
+            </div>
+
+             <!-- ใช้ HTMX เพื่อโหลดรีวิวสินค้า (reviews) อัตโนมัติจากเซิร์ฟเวอร์เมื่อหน้าเว็บโหลดขึ้นมา --->
+            <div id="review-list"
+                 hx-get="{% url 'load_reviews' product.id %}"
+                 hx-trigger="load"
+                 hx-target="#review-list"
+                 hx-swap="outerHTML">
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function selectThumbnail(selectedThumbnail) {
+        // ลบกรอบจากทุก thumbnail
+        let thumbnails = document.querySelectorAll('.thumbnail');
+        thumbnails.forEach(thumb => thumb.classList.remove('border-red-500'));
+
+        // เพิ่มกรอบสีแดงให้กับ thumbnail ที่ถูกเลือก
+        selectedThumbnail.classList.add('border-red-500');
+    }
+
+    // เมื่อโหลดหน้าเว็บเสร็จ (DOMContentLoaded) ให้เริ่มทำงาน
+    document.addEventListener("DOMContentLoaded", function () {
+        // ดึงองค์ประกอบที่เกี่ยวข้องกับจำนวนสินค้า
+        const quantityInput = document.getElementById("quantity");
+        const cartQuantityInput = document.getElementById("cart-quantity");
+        const buyQuantityInput = document.getElementById("buy-quantity");
+        const decreaseBtn = document.getElementById("decrease");
+        const increaseBtn = document.getElementById("increase");
+
+        // ฟังก์ชันอัปเดตจำนวนสินค้าให้เป็นค่าที่กำหนด
+        function updateQuantity(value) {
+            quantityInput.value = value;
+            cartQuantityInput.value = value;
+            buyQuantityInput.value = value;
+        }
+
+        // กดปุ่มลดจำนวนสินค้า
+        decreaseBtn.addEventListener("click", function () {
+             // แปลงค่าจาก string เป็น number (integer) โดยใช้เลขฐาน 10 ใช้ parseInt พาร์ส อิน
+            let currentValue = parseInt(quantityInput.value, 10);
+            if (currentValue > 1) {
+                updateQuantity(currentValue - 1);
+            }
+        });
+
+        // กดปุ่มเพิ่มจำนวนสินค้า
+        increaseBtn.addEventListener("click", function () {
+            // แปลงค่าจาก string เป็น number (integer) โดยใช้เลขฐาน 10
+            let currentValue = parseInt(quantityInput.value, 10);
+            updateQuantity(currentValue + 1);
+        });
+    });
+</script>
+
+{% endblock %}

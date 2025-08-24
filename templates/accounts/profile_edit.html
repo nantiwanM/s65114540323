@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% include 'components/user/sidebar.html' %}
+
+<div class="min-h-full px-4 md:px-8 lg:ml-72 pb-10 ">
+    <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-xl shadow-md">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mt-4">
+                <!-- แสดง messages usernaem-->
+                {% include "components/alert/alert_message.html" with messages=form.username.errors %}
+            </div>
+            <div class="mt-4">
+                <!-- แสดง messages email-->
+                {% include "components/alert/alert_message.html" with messages=form.email.errors %}
+            </div>
+
+            <div class="flex flex-col md:flex-row">
+                <!-- รูปโปรไฟล์ (ฝั่งขวา) -->
+                <div class="w-full md:w-1/3 flex flex-col items-center md:items-center mt-6 md:mt-0 mr-14 mb-6">
+                    <img id="preview" src="{{ user.profile_picture.url }}" alt="profile_picture" class="w-36 h-36 rounded-full border-2 border-gray-300 object-cover shadow-lg transition-all duration-300 hover:scale-105">
+                    <div class="mt-4 text-sm text-gray-700 bg-gray-100 px-5 py-3 rounded-lg">
+                        เลือกรูป
+                        {{ form.profile_picture }}
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">ไฟล์ที่รองรับ: .JPEG, JPG, .PNG</p>
+                </div>
+
+                <!-- ข้อมูลผู้ใช้ (ฝั่งซ้าย) -->
+                <div class="w-full md:w-2/3 space-y-5">
+
+                    <!-- ข้อมูลบัญชี -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">ข้อมูลบัญชี</h3>
+                        <div class="mt-4 border-2 p-6 rounded-xl space-y-5">
+                            <div>
+                                <label class="text-md font-medium text-gray-600">ชื่อผู้ใช้</label>
+                                {{ form.username }}
+                            </div>
+                            <div>
+                                <label class="text-md font-medium text-gray-600">อีเมล</label>
+                                {{ form.email }}
+                            </div>
+                        </div>
+                    </div>
+
+                       <!-- ข้อมูลส่วนตัว -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-900">ข้อมูลส่วนตัว</h3>
+                        <div class="mt-4  p-6 rounded-xl border-2 space-y-5">
+                            <div>
+                                <label class="text-md font-medium text-gray-600">เบอร์โทรศัพท์</label>
+                                {{ form.phone_number }}
+                            </div>
+                            <div>
+                                <label for="birthday" class="text-md font-medium text-gray-600">วัน/เดือน/ปี เกิด</label>
+                                <div class="relative">
+                                    <input type="date" id="birthday" name="birthday" value="{{ form.birthday.value|default:''|date:'Y-m-d' }}"
+                                           class="mt-1 w-full border-gray-300 rounded-md sm:text-sm focus:ring-gray-500 focus:border-gray-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-md font-medium text-gray-600">เพศ</label>
+                                <div class="flex space-x-4 mt-1">
+                                    {% for radio in form.gender %}
+                                        <label class="flex items-center space-x-2">
+                                            {{ radio.tag }}
+                                            <span class="text-sm text-gray-700 ">{{ radio.choice_label }}</span>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-md font-medium text-gray-600">ที่อยู่</label>
+                                {{ form.address }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ปุ่มยกเลิก, แก้ไข -->
+            <div class="flex justify-end gap-4 mt-8">
+                <!-- ปุ่มยกเลิก -->
+                <a href="{% url 'profile' %}"
+                   class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-6 rounded-lg focus:ring-4 focus:ring-gray-200">
+                    ยกเลิก
+                </a>
+
+                <!-- ปุ่มบันทึก -->
+                <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg focus:ring-4 focus:ring-blue-300">
+                    แก้ไข
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const fileInput = document.querySelector('input[type="file"]');
+        const preview = document.getElementById('preview');
+
+        // เก็บค่าเริ่มต้นของรูปโปรไฟล์
+        const defaultSrc = preview.src;
+
+        fileInput.addEventListener('change', function() {
+            // ตรวจสอบว่ามีไฟล์ถูกเลือกหรือไม่
+            if (fileInput.files.length > 0) {
+                // สร้างออบเจ็กต์ FileReader เพื่ออ่านข้อมูลไฟล์
+                const reader = new FileReader();
+
+                // กำหนดฟังก์ชันที่จะทำงานเมื่อการอ่านไฟล์เสร็จสิ้น
+                reader.onload = function(e) {
+                    // นำข้อมูลที่อ่านได้ (ซึ่งอยู่ในรูปแบบ Data URL) ไปกำหนดให้กับ src ของรูปภาพ preview
+                    preview.src = e.target.result;
+                };
+                // อ่านไฟล์ที่ผู้ใช้เลือกเป็น Data URL (รูปแบบ base64)
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                // ถ้ากดยกเลิก กลับไปแสดงรูปเดิม
+                preview.src = defaultSrc;
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% load static tailwind_tags %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% tailwind_css %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CN Style Shop</title>
+
+    <style>
+        input[type="password"]::-ms-reveal {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="h-screen w-screen bg-cover bg-top" style="background-image: url('{% static "images/bg_Login2.jpg" %}')">
+
+        <div class="flex h-screen">
+            <!-- ส่วนซ้าย: โลโก้ -->
+            
+            <div class="w-1/2 hidden lg:flex items-center justify-center">
+                <a href="{% url 'shop' %}" >
+                    <img
+                        src="{% static 'images/logo/White_Logo.svg' %}"
+                        alt="CN Style Shop"
+                        class="mx-auto h-3/4 shadow-xl"
+                    >
+                </a>
+            </div>
+           
+            <!-- ส่วนขวา: ฟอร์ม Login -->
+            <div class="w-full lg:w-1/2 flex items-center justify-center">
+                <div class="p-8 rounded-2xl shadow-md w-[30rem] bg-white">
+                    <h2 class="text-2xl font-bold mb-8 text-center">Login to your Account</h2>
+
+                    <form method="POST" class="space-y-6 mb-8">
+                        {% csrf_token %}
+
+                         <!-- แสดง errors จาก form -->
+                        {% include "components/alert/error_alert.html" with errors=form.non_field_errors %}
+
+                        <!-- แสดง messages error-->
+                        {% include "components/alert/error_alert.html" with errors=messages %}
+
+                        <!-- Username -->
+                        <div>
+                            <label for="username" class="block mb-1 text-md font-medium text-gray-600">Username</label>
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                autocomplete="username"
+                                class="mt-1 w-full border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm"
+                                required
+                            >
+                        </div>
+
+                        <!-- Password -->
+                        <div class="relative">
+                            <label for="password-login" class="text-md font-medium text-gray-600">Password</label>
+                            <div class="mt-1 relative">
+                                <input
+                                    type="password"
+                                    id="password-login"
+                                    name="password"
+                                    autocomplete="current-password"
+                                    class="w-full border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm"
+                                    required
+                                >
+                                <!-- Icon สำหรับแสดง/ซ่อนรหัสผ่าน -->
+                                <img
+                                    id="togglePasswordLogin"
+                                    src="{% static 'images/eye-close.svg' %}"
+                                    alt="Toggle Password Visibility"
+                                    aria-label="Show password"
+                                    data-open-icon="{% static 'images/eye-open.svg' %}"
+                                    data-close-icon="{% static 'images/eye-close.svg' %}"
+                                    class="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer w-5 h-5"
+                                    onclick="togglePassword('password-login', 'togglePasswordLogin')"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- ปุ่ม Login -->
+                        <button type="submit"
+                                class="w-full flex justify-center py-2 px-4 border border-transparent rounded-full shadow-sm text-md font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                        >Login
+                        </button>
+                    </form>
+
+                    <!-- ลิงก์สำหรับสมัครสมาชิก -->
+                    <p class="text-center text-sm text-gray-500">
+                        คุณยังไม่มีบัญชีใช่ไหม?
+                        <a href="{% url 'register' %}" class="text-blue-500 no-underline">สมัครสมาชิก</a>
+                    </p>
+                </div>
+            </div>
+        </div> 
+    </div> 
+
+    <!-- ไฟล์สคริปต์ -->
+    <script src="{% static 'js/accounts/toggle-password.js' %}"></script>
+</body>
+</html>

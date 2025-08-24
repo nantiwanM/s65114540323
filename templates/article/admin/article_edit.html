@@ -1,0 +1,106 @@
+{% extends "base_admin.html" %}
+
+{% block extra_head %}
+    <!-- สำหรับการโหลด TinyMCE -->
+    {{ form.media }}
+{% endblock %}
+
+{% block content %}
+<form method="POST" enctype="multipart/form-data" class="lg:px-24 space-y-4 pb-6">
+    {% csrf_token %}
+
+    <!-- ข้อมูลรูปภาพ -->
+    <div class="bg-white p-10 rounded-xl shadow-sm">
+        <h1 class="text-xl font-semibold mb-6 text-gray-700">รูปภาพปกของบทความ</h1>
+        <div class="space-y-6 px-8 sm:px-14 md:px-16 lg:px-24">
+            <div class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-6">
+
+                <!-- แสดงรูปภาพ -->
+                <div class="w-full md:w-3/4 h-auto sm:h-40  md:h-60 border-2 border-dashed border-gray-400 flex items-center justify-center rounded-lg bg-gray-100 overflow-hidden relative">
+                    {% if form.image.value %}
+                        <img id="image_preview" src="{{ form.image.value.url }}" alt="Current Image" class="w-full h-full object-cover">
+                        <!-- ข้อความเริ่มต้นสำหรับไม่มีรูป -->
+                        <span id="placeholder_text" class="text-gray-500 text-sm absolute hidden">รูปภาพปกบทความ</span>
+                    {% endif %}
+                </div>
+
+                <!-- ช่องอัปโหลด -->
+                <div class="p-6 md:p-8 border border-blue-500 rounded-lg">
+                    <div class="flex flex-row space-x-4 text-blue-500">
+                        <label class="block text-md font-semibold text-gray-600 mb-10">รูปภาพปกบทความ</label>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"  class="w-6 h-6">
+                            <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="text-sm">
+                        <label class="sr-only">รูป</label>
+                        {{ form.image }}
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3">ไฟล์ที่รองรับ: .jpg, .jpeg, .png</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ข้อมูลทั่วไป -->
+    <div class="bg-white p-10 rounded-xl shadow-sm">
+        <h1 class="text-xl font-semibold mb-6 text-gray-700">ข้อมูลทั่วไป</h1>
+        <div class="space-y-6 px-8 sm:px-14 md:px-16 lg:px-24">
+            <div>
+                <label for="title" class="block text-gray-600 font-medium mb-2">หัวข้อบทความ:</label>
+                {{ form.title }}
+            </div>
+
+            <div>
+                <label for="category" class="block text-gray-600 font-medium mb-2">ประเภทบทความ:</label>
+                {{ form.category }}
+            </div>
+
+             <div>
+                <label for="content" class="block text-gray-600 font-medium mb-2">เนื้อหาบทความ:</label>
+                {{ form.content }}
+            </div>
+        </div>
+    </div>
+
+    <!-- ปุ่มบันทึกแก้ไขบทความ -->
+    <div class="flex justify-end gap-4 mb-10">
+        <!-- ปุ่มยกเลิก -->
+        <a href="{% url 'article_list' %}"
+           class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-6 rounded-lg focus:ring-4 focus:ring-gray-200">
+            ยกเลิก
+        </a>
+
+        <!-- ปุ่มบันทึก -->
+        <button type="submit"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg focus:ring-4 focus:ring-blue-300">
+            บันทึก
+        </button>
+    </div>
+</form>
+
+<script>
+    function previewImage(event, imageId, textId) {
+        const input = event.target;
+        const image = document.getElementById(imageId);
+        const placeholderText = document.getElementById(textId);
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                image.src = e.target.result;  // อัปเดตรูปภาพ
+                image.classList.remove("hidden"); // แสดงรูปภาพ
+                placeholderText.classList.add("hidden"); // ซ่อนข้อความ
+            };
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            // ถ้ากดยกเลิกหรือไม่เลือกไฟล์ ให้คืนค่าเดิม
+            image.src = "";
+            image.classList.add("hidden"); // ซ่อนรูปภาพ
+            placeholderText.classList.remove("hidden"); // แสดงข้อความ
+        }
+    }
+</script>
+
+{% endblock %}

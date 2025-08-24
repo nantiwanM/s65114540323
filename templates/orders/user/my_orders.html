@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+    <style>
+        .rating input:checked {
+            background-color: #FACC15 !important; /* บังคับให้สีของดาวที่ถูกเลือก */
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+{% include 'components/user/sidebar.html' %}
+
+<div class="min-h-screen px-4 md:px-8 lg:ml-72 pb-10 ">
+    <div class="container mx-auto max-w-4xl">
+        <!-- Tabs -->
+        <div class="sticky top-[72px] z-10">
+            <div class="tabs tabs-boxed mb-4 shadow-xl bg-white border">
+                {% for key, label in tabs.items %}
+                    <a href="?tab={{ key }}" class="tab {% if current_tab == key %}bg-red-500 text-white font-semibold{% endif %}">
+                        {{ label }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+
+
+        <!-- แสดงรายการคำสั่งซื้อและรีวิว -->
+        <div class="mt-6 space-y-4 min-h-[300px]">
+            {% if items %}
+                {% if item_type == "order" %}
+                    {% for order in items %}
+                        <div class="bg-white shadow-xl rounded-xl p-8 border">
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <h2 class="text-lg font-semibold">
+                                    หมายเลขคำสั่งซื้อ <span class="text-red-500">{{ order.order_code }}</span>
+                                </h2>
+                                <div class="text-sm">
+                                    {% if order.status == 'pending' %}
+                                        <span class="px-2 py-1 bg-yellow-200 text-yellow-700 rounded">รอการชำระเงิน</span>
+                                    {% elif order.status == 'paid' %}
+                                        <span class="px-2 py-1 bg-blue-200 text-blue-700 rounded">รอการอนุมัติ</span>
+                                    {% elif order.status == 'completed' %}
+                                        <span class="px-2 py-1 bg-green-200 text-green-700 rounded">สำเร็จ</span>
+                                    {% elif order.status == 'cancelled' %}
+                                        <span class="px-2 py-1 bg-red-200 text-red-700 rounded">ยกเลิก</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="px-14">
+                                <p class="text-sm text-gray-600 mt-2">วันที่สั่งซื้อ: {{ order.order_date }}</p>
+
+                                <!-- ส่วนที่อยู่ในการจัดส่ง -->
+                                <details class="collapse collapse-arrow bg-gray-100 rounded-lg mt-4">
+                                    <!-- หัวข้อที่คลิกได้ -->
+                                    <summary class="collapse-title text-md font-semibold text-gray-800 flex items-center justify-center space-x-2 cursor-pointer">
+                                        <span class="flex items-center space-x-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                                                <path fill-rule="evenodd" d="m11.54 22.351.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 1.144-.742 19.58 19.58 0 0 0 2.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 0 0-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 0 0 2.682 2.282 16.975 16.975 0 0 0 1.145.742ZM12 13.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd" />
+                                            </svg>
+                                            <span>ที่อยู่ในการจัดส่ง</span>
+                                        </span>
+                                    </summary>
+
+                                    <!-- เนื้อหาที่ซ่อนอยู่ -->
+                                    <div class="collapse-content text-gray-700 px-4">
+                                        <div class="flex flex-col space-y-1">
+                                            <div class="flex items-center space-x-4">
+                                                <p class="font-medium">{{ order.full_name }}</p>
+                                                <p class="text-gray-600">{{ order.phone }}</p>
+                                            </div>
+                                            <p class="text-gray-600">{{ order.address }}</p>
+                                        </div>
+                                    </div>
+                                </details>
+
+                                <!-- การชำระเงิน -->
+                                <details class="collapse collapse-arrow bg-gray-100 rounded-lg mt-4">
+                                    <!-- หัวข้อที่คลิกได้ -->
+                                    <summary class="collapse-title text-md font-semibold text-gray-800 flex items-center justify-center space-x-2 cursor-pointer">
+                                        <span class="text-md font-semibold">ข้อมูลการชำระเงิน</span>
+                                    </summary>
+
+                                    <!-- เนื้อหาที่ซ่อนอยู่ -->
+                                    <div class="collapse-content text-gray-700 px-4 ">
+                                        <p class="text-md">วิธีการชำระเงิน:
+                                            {% if order.payment_method == 'slip' %} แนปสลิป {% else %} {{ order.payment_method }} {% endif %}
+                                        </p>
+
+                                        {% if order.payment_image %}
+                                            <div class="mt-2 flex justify-center">
+                                                <img src="{{ order.payment_image.url }}" alt="Payment Slip" class="w-48 mt-2 rounded-md shadow">
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </details>
+
+                                <!-- รายการสินค้า -->
+                                <div class="mt-4 space-y-3">
+                                    {% for item in order.items.all %}
+                                        <div class="flex items-center space-x-4 border-b pb-2">
+                                            <a href="{% url 'product_detail' pk=item.product.id %}">
+                                                <img src="{{ item.product.cover_image.url }}" alt="{{ item.product.name }}" class="w-20 h-20 rounded-md object-cover">
+                                            </a>
+                                            <div class="flex-1">
+                                                <p class="font-medium">{{ item.product.name }}</p>
+                                                <p class="text-sm text-gray-500">{{ item.color }}, {{ item.size }} </p>
+                                                <p class="text-sm text-gray-600">จำนวน: {{ item.quantity }} ชิ้น</p>
+                                                <p class="text-sm text-gray-600">ราคาต่อชิ้น: ฿{{ item.unit_price }}</p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="font-medium text-red-500">รวม: ฿{{ item.total_price }}</p>
+                                                {% if order.status == 'completed' %}
+                                                    {% if item.order_item_reviews %}
+                                                        <p class="text-sm text-green-500 font-medium mt-3">เขียนรีวิวแล้ว</p>
+                                                    {% else %}
+                                                        <button
+                                                            class="border bg-white border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-4 py-1 rounded-md mt-3"
+                                                            hx-get="{% url 'review' item.id %}"
+                                                            hx-target="#review-modal-content"
+                                                            hx-trigger="click"
+                                                            onclick="document.getElementById('review-modal').showModal()">
+                                                            เขียนรีวิว
+                                                        </button>
+                                                    {% endif %}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- สรุปราคา ปุ่ม -->
+                                <div class="mt-6 flex items-center justify-end pt-2">
+                                    <p class="font-semibold text-lg">ยอดรวมทั้งหมด: <span class="text-red-500 text-xl">฿{{ order.total_price }}</span></p>
+
+                                    {% if order.status == 'pending' %}
+                                        <!-- ปุ่มยกเลิกคำสั่งซื้อ -->
+                                        <button onclick="confirmDelete('{% url 'cancel_order' order.id %}', '{% url 'my_orders' %}?tab=cancelled')"
+                                                class="ml-6 px-4 py-1 border border-gray-400 text-gray-600 font-normal rounded-md bg-transparent hover:bg-gray-200">
+                                            ยกเลิกคำสั่งซื้อ
+                                        </button>
+                                        <a href="{% url 'payment' order.id %}" class="ml-6 px-4 py-1 bg-red-500 text-white font-semibold rounded-md shadow hover:bg-red-600">ชำระเงิน</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                {% elif item_type == "review" %}
+                    {% for review in items %}
+                        <div class="bg-white shadow-xl rounded-xl p-8 border">
+                            <div class="flex space-x-4 items-center">
+                                <!-- รูปสินค้า -->
+                                <a href="{% url 'product_detail' pk=review.product.id %}">
+                                    <figure class="w-12 h-12">
+                                        <img src="{{ review.product.cover_image.url }}"
+                                             alt="รูปภาพของ {{ review.product.name }}"
+                                             class="w-full h-full rounded-md object-cover border border-gray-300">
+                                    </figure>
+                                </a>
+
+                                <!-- ชื่อสินค้า + ตัวเลือก -->
+                                <div class="flex-1">
+                                    <h2 class="font-semibold text-lg ">{{ review.product.name }}</h2>
+                                    <p class="text-sm text-gray-500 mt-1">ตัวเลือก: <span class="font-medium">{{ review.order_item.color }}, {{ review.order_item.size }}</span></p>
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <!-- ดาว -->
+                                <div class="flex">
+                                    <p class="text-sm font-medium text-gray-600 mr-2">ให้คะแนน:</p>
+                                    {% for i in "12345" %}
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            class="w-5 h-5 {% if forloop.counter <= review.rating %}text-yellow-400{% else %}text-gray-300{% endif %}"
+                                            fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 .587l3.668 7.431 8.167 1.185-5.917 5.766 1.396 8.142L12 18.897l-7.314 3.85 1.396-8.142-5.917-5.766 8.167-1.185z"/>
+                                        </svg>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- คอมเมนต์ -->
+                                <p class="text-gray-700 mt-2 border border-gray-300 p-4 rounded-md">
+                                    {{ review.comment }}
+                                </p>
+
+                                <!-- วันที่รีวิว -->
+                                <p class="text-sm text-gray-400 mt-3">รีวิวเมื่อ: {{ review.created_at }} น.</p>
+                            </div>
+
+                            </div>
+                    {% endfor %}
+                {% endif %}
+            {% else %}
+                <p class="text-center text-gray-500 mt-4">ไม่มีข้อมูล</p>
+            {% endif %}
+
+            <!-- ถ้ามี หลายหน้า → Pagination จะแสดงตามปกติ -->
+            {% if page_obj.has_other_pages %}
+                {% include "components/user/pagination.html" with page_obj=page_obj query_params=query_params %}
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <dialog id="review-modal" class="modal">
+        <div class="modal-box w-11/12 max-w-lg bg-gray-50 relative">
+            <!-- ปุ่มปิดที่มุมขวาบน -->
+            <form method="dialog" class="sticky top-0 right-0 flex justify-end">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-0 top-0">✕</button>
+            </form>
+
+            <div id="review-modal-content" class=" overflow-auto">
+                <!-- HTMX จะโหลดข้อมูลตรงนี้ -->
+            </div>
+        </div>
+
+        <!-- ปิดเมื่อคลิกด้านนอก -->
+        <form method="dialog" class="modal-backdrop">
+            <button>ปิด</button>
+        </form>
+    </dialog>
+</div>
+
+<script>
+    function confirmDelete(deleteUrl, redirectUrl) {
+        Swal.fire({
+            title: 'ยืนยันการยกเลิกคำสั่งซื้อ',
+            text: 'คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำสั่งซื้อนี้?',
+            confirmButtonText: 'ยกเลิกคำสั่งซื้อ',
+            cancelButtonText: 'ยกเลิก',
+            showCancelButton: true,
+            customClass: {
+                popup: 'rounded-2xl shadow-2xl bg-white max-w-md', // กรอบป๊อปอัป
+                actions: 'flex flex-row-reverse gap-4', // สลับตำแหน่งปุ่มและเพิ่มระยะห่าง
+                confirmButton: 'bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-all duration-200', // ปุ่มยืนยัน
+                cancelButton: 'bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 hover:text-gray-800 transition-all duration-200', // ปุ่มยกเลิก
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(deleteUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'  // ส่ง CSRF Token
+                    }
+                }).then(response => {
+                    if (response.ok || response.status === 204) {
+                        window.location.href = redirectUrl;   // เปลี่ยนหน้าไปยังแท็บ cancelled
+                    } else {
+                        response.text().then(msg => { // อ่านข้อความ error ที่ส่งจาก server แล้วแสดง แบบ Swal.fire(หัวข้อ, เนื้อหา, ประเภท)
+                            Swal.fire('เกิดข้อผิดพลาด', msg || 'ไม่สามารถยกเลิกคำสั่งซื้อนี้ได้', 'error');
+                        });
+                    }
+                });
+            }
+        });
+    }
+</script>
+{% endblock %}

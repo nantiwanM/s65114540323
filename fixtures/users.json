@@ -1,0 +1,21 @@
+[
+  {
+    "model": "accounts.userprofile",
+    "pk": 1,
+    "fields": {
+      "username": "userA",
+      "password": "pbkdf2_sha256$870000$KfrecpVWqyMdrkbrYzgbHU$6DNScUDraTdZf7Tougf9GFbZ7z3OU1Qpj2nD1GtCHac=",
+      "email": "userA@gmail.com",
+      "is_superuser": 0,
+      "is_staff": 1,
+      "is_active": 1,
+      "gender": "male",
+      "birthday": "2000-02-11",
+      "phone_number": "0123456789",
+      "address": "77/9 ซอยลาดพร้าว 101 แขวงคลองเจ้าคุณสิงห์ เขตวังทองหลาง กรุงเทพมหานคร 10310",
+      "profile_picture": "profile/default_profile.jpg",
+      "role": "user",
+      "updated_at": "2025-03-19 06:20:24.502523"
+    }
+  }
+]

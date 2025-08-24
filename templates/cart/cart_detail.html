@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen max-w-6xl mx-auto pb-10 px-4 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Cart Items Section -->
+    <div class="md:col-span-2 bg-white shadow-lg rounded-lg p-6 sm:p-10 h-fit">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">รถเข็นของฉัน</h1>
+
+        {% if items %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm sm:text-base">
+                <thead>
+                    <tr class="text-gray-700 shadow-sm border-b">
+                        <th class="p-3 text-left">สินค้า</th>
+                        <th class="p-3">ราคา</th>
+                        <th class="p-3">จำนวน</th>
+                        <th class="p-3">รวม</th>
+                        <th class="p-3"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr class="text-center border-b">
+                        <td class="p-3 flex items-center space-x-3 text-left">
+                            <a href="{% url 'product_detail' pk=item.product.id %}">
+                                <img src="{{ item.product.cover_image.url }}" alt="{{ item.product.name }}" class="w-16 h-16 object-cover rounded shadow">
+                            </a>
+                            <div>
+                                <p class="font-semibold">{{ item.product.name }}</p>
+                                <p class="text-gray-500 text-sm">{{ item.product_option.color }}, {{ item.product_option.size }}</p>
+                            </div>
+                        </td>
+                        <td class="p-3">฿{{ item.product_option.price }}</td>
+                        <td class="p-3">
+                            <div class="flex items-center justify-between bg-white rounded-full border-2 border-gray-200 px-4 py-1 mx-6 h-10">
+                                <!-- ปุ่มลดจำนวน -->
+                                <button type="button" onclick="updateQuantity({{ item.id }}, 'decrease', this)"
+                                        class="text-gray-500 flex items-center justify-center w-6 h-6">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5" />
+                                    </svg>
+                                </button>
+
+                                <!-- แสดงจำนวน -->
+                                <span id="quantity-{{ item.id }}" class="font-semibold text-center w-6">{{ item.quantity }}</span>
+
+                                <!-- ปุ่มเพิ่มจำนวน -->
+                                <button type="button" onclick="updateQuantity({{ item.id }}, 'increase', this)"
+                                        class="text-gray-500 flex items-center justify-center w-6 h-6">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m7-7H5" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                        <td class="p-3 text-red-600 font-semibold" id="item-total-{{ item.id }}">
+                            ฿{{ item.item_price }}
+                        </td>
+                       <td class="p-3">
+                            <form method="POST" action="{% url 'remove_cart_item' item.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="text-gray-500 hover:text-red-700" style="background: none; border: none;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-10">
+            <p class="text-gray-600 text-lg">ไม่มีสินค้าในรถเข็น</p>
+            <a href="{% url 'shop' %}" class="mt-4 inline-block px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600">ไปช้อปปิ้งต่อ</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Summary Section -->
+    <div class="bg-gradient-to-b from-gray-700 to-gray-800 shadow-lg rounded-lg p-6 sm:p-10 h-fit md:sticky md:top-[72px]">
+        <h2 class="text-xl font-semibold text-white border-b pb-3 mb-4">สรุปคำสั่งซื้อ</h2>
+        <div class="flex justify-between text-lg font-medium text-white mb-6">
+            <span>ยอดรวมทั้งหมด:</span>
+            <span id="cart-total" class="text-white font-bold text-xl">฿{{ cart.get_total_price }}</span>
+        </div>
+        <a href="{% url 'checkout' %}" class="block bg-red-500 text-white font-bold text-center px-6 py-2 rounded-lg text-lg hover:bg-red-600 w-full">
+            ชำระเงิน
+        </a>
+    </div>
+</div>
+
+<script>
+    function updateQuantity(itemId, action, button) {
+        fetch(`/cart/update/${itemId}/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: `action=${action}`
+        })
+        .then(response => response.json())
+        .then(data => {
+        if (data.quantity !== undefined) {
+            // อัปเดตจำนวนสินค้า
+            document.getElementById(`quantity-${itemId}`).textContent = data.quantity;
+            // อัปเดตราคารวมของสินค้านั้น
+            document.getElementById(`item-total-${itemId}`).textContent = `฿${data.item_total}`;
+            // อัปเดตราคารวมทั้งหมดของตะกร้า
+            document.getElementById("cart-total").textContent = `฿${data.cart_total}`;
+        }
+    })
+        .catch(error => console.error("Error:", error));
+    }
+</script>
+
+
+{% endblock %}

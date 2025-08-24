@@ -1,0 +1,236 @@
+{% extends 'base_admin.html' %}
+
+{% block content %}
+    
+<form method="POST" enctype="multipart/form-data" class="lg:px-24 space-y-4 pb-6">
+    {% csrf_token %}
+
+    <!-- ข้อมูลทั่วไป -->
+    <div class="bg-white p-10 rounded-xl shadow-sm">
+        <h1 class="text-xl font-semibold mb-6 text-gray-700">ข้อมูลทั่วไป</h1>
+        <div class="space-y-6 px-8 sm:px-14 md:px-16 lg:px-24">
+            <div>
+                <label for="name" class="block text-gray-600 font-medium mb-2">ชื่อสินค้า</label>
+                <input type="text" name="name" id="name" 
+                       class="w-full p-2 border border-gray-400 rounded-lg" 
+                       value="{{ product.name }}" 
+                       required>
+            </div>
+
+            <div>
+                <label for="description" class="block text-gray-600 font-medium mb-2">รายละเอียด</label>
+                <textarea name="description" id="description" rows="12" 
+                          class="w-full p-2 border border-gray-400 rounded-lg" 
+                          required>{{ product.description }}</textarea>
+            </div>
+
+            <div>
+                <label for="category" class="block text-gray-600 font-medium mb-2">ประเภทสินค้า</label>
+                <select name="category" id="category" 
+                        class="w-full p-2 border border-gray-400 rounded-lg" 
+                        required>
+                    {% for key, value in product.CATEGORY_CHOICES %}
+                        <option value="{{ key }}" {% if product.category == key %}selected{% endif %}>{{ value }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- ข้อมูลการขาย -->
+    <div class="bg-white p-10 rounded-xl shadow-sm">
+        <h1 class="text-xl font-semibold mb-6 text-gray-700">ข้อมูลการขาย</h1>
+        <div class="space-y-4 px-8 sm:px-14 md:px-16 lg:px-24">
+            <div class="overflow-x-auto rounded-lg shadow-sm border border-gray-200">
+                <table class="min-w-full table-auto">
+                    <thead>
+                         <tr class="bg-gray-200 text-gray-600 text-sm shadow-sm">
+                            <th class="px-6 py-2 text-left">สี</th>
+                            <th class="px-6 py-2 text-left">ขนาด</th>
+                            <th class="px-6 py-2 text-left">ราคา</th>
+                            <th class="px-6 py-2"></th>
+                         </tr>
+                    </thead>
+                    
+                    <tbody id="options-container" class=" divide-y divide-gray-200">
+                        {% for option in options %}    
+                            <tr>
+                                <td class="px-6 py-3">
+                                    <label for="color-input" class="sr-only">Color</label>
+                                    <input type="text" id="color-input" name="color[]" value="{{ option.color }}" class="w-full min-w-[80px] p-2 border border-gray-400 rounded-lg" required>
+                                </td>
+                                
+                                <td class="px-6 py-3">
+                                    <label for="size-input" class="sr-only">Size</label>
+                                    <input type="text" id="size-input" name="size[]" value="{{ option.size }}" class="w-full min-w-[80px] p-2 border border-gray-400 rounded-lg" required>
+                                </td>
+                                
+                                <td class="px-6 py-3">
+                                    <label for="price-input" class="sr-only">Size</label>
+                                    <input type="number" id="price-input" name="price[]" value="{{ option.price }}" class="w-full min-w-[80px] p-2 border border-gray-400 rounded-lg" required>
+                                </td>
+                                
+                                <td class="px-6 py-3 text-center">
+                                    <button type="button" onclick="this.closest('tr').remove()" class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-4 text-xs rounded-lg">
+                                        ลบ
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div>
+                <button type="button" onclick="addOption()" 
+                        class="flex items-center justify-center w-full text-blue-600 border border-blue-500 rounded-lg py-2 hover:bg-blue-50">
+                    <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6"></path>
+                    </svg>
+                    <span>เพิ่มตัวเลือกสินค้า</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ข้อมูลรูปภาพ -->
+    <div class="bg-white p-10 rounded-xl shadow-sm">
+        <h1 class="text-xl font-semibold mb-6 text-gray-700">ข้อมูลรูปภาพ</h1>
+        <div class="space-y-6 px-8 sm:px-14 md:px-16 lg:px-24">
+            <div class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-6 mb-14">
+                <!-- แสดงรูปภาพปก -->
+                <div id="cover_image_preview" 
+                     class="w-60 h-60 border-2 border-dashed border-gray-400 flex items-center justify-center rounded-lg bg-gray-100 overflow-hidden">
+                    {% if product.cover_image %}
+                        <img src="{{ product.cover_image.url }}" alt="Current Cover Image" class="w-full h-full object-cover">
+                    {% else %}
+                        <span class="text-gray-500 text-sm">รูปภาพปกสินค้า</span>
+                    {% endif %}
+                </div>
+
+                <!-- ช่องอัปโหลด -->
+                <div class="p-12 border border-blue-500 rounded-lg">
+                    <div class="flex flex-row space-x-4 text-blue-500">
+                        <label for="cover_image" class="block text-md font-semibold text-gray-600 mb-6">รูปภาพปกสินค้า</label>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"  class="w-6 h-6">
+                            <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z" clip-rule="evenodd" />
+                        </svg>
+                    </div>    
+                    
+                    <div class="text-gray-500 mb-4">
+                    <span>เปลี่ยนรูปภาพหน้าปกสินค้า</span>
+                    </div>
+                    
+                    <input type="file" name="cover_image" id="cover_image" 
+                           accept=".jpg, .jpeg, .png" 
+                           onchange="previewImage(event, 'cover_image_preview')"
+                           class="file-input file-input-bordered file-input-sm w-full max-w-xs"                     
+                    />                    
+                    <p class="text-xs text-gray-500 mt-3">ไฟล์ที่รองรับ: .jpg, .jpeg, .png</p>
+                </div>
+            </div>
+        
+            <div>
+                <h2 class="text-md font-semibold mb-2 text-gray-600">เพิ่มรูปภาพเพิ่มเติม</h2>
+                <span class="block text-sm text-gray-500 mb-4">สามารถเพิ่มรูปภาพได้ไม่เกิน 4 รูป</span>
+                <div id="image-upload-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {% for i in images %}
+                        <div class="flex flex-col items-center">
+                            <!-- พื้นที่แสดงรูปภาพ -->
+                            <div id="images_preview_{{ forloop.counter0 }}"
+                                 class="w-40 h-40 mb-3 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg bg-gray-100 overflow-hidden relative">
+                                <!-- แสดงภาพเดิมหรือพื้นที่ว่าง -->
+                                {% if i %}
+                                    <img src="{{ i.image.url }}" alt="รูปภาพ" class="w-full h-full object-cover" />
+                                    <!-- ปุ่มลบ -->
+                                    <button type="button"
+                                            hx-delete="{% url 'delete_image' i.id %}"
+                                            hx-confirm="คุณต้องการลบภาพนี้หรือไม่?"
+                                            hx-target="#images_preview_{{ forloop.counter0 }}"
+                                            hx-swap="innerHTML"
+                                            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                            class="absolute top-2 right-2 w-8 h-8 bg-red-500 border-2 border-red-500 rounded-full flex items-center justify-center p-1 shadow-md">
+                                        <span class="font-bold text-lg text-white">X</span>
+                                    </button>
+                                {% else %}
+                                    <span class="text-gray-400">รูปภาพ</span>
+                                {% endif %}
+                            </div>
+
+                            <!-- ช่องอัปโหลดไฟล์ -->
+                            <input type="file"
+                                   name="new_images[]"
+                                   accept=".jpg, .jpeg, .png"
+                                   onchange="previewImage(event, 'images_preview_{{ forloop.counter0 }}')"
+                                   class="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:cursor-pointer" 
+                                   
+                            />
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ปุ่ม -->
+    <div class="flex justify-end gap-4 mb-10">
+        <!-- ปุ่มยกเลิก -->
+        <a href="{% url 'product_list' %}" 
+           class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-6 rounded-lg focus:ring-4 focus:ring-gray-200">
+            ยกเลิก
+        </a>
+        
+        <!-- ปุ่มบันทึก -->
+        <button type="submit" 
+                class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg focus:ring-4 focus:ring-blue-300">
+            บันทึก
+        </button>
+    </div>
+</form>
+    
+    <script>
+        // ฟังก์ชันเพิ่มตัวเลือกสินค้าใหม่
+        function addOption() {
+            const optionsContainer = document.getElementById("options-container");
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+                <td class="px-6 py-3">
+                   <input type="text" name="color[]" class="w-full p-2 border border-gray-400 rounded-lg" required>
+                </td>
+                            
+                <td class="px-6 py-3">
+                   <input type="text" name="size[]" class="w-full p-2 border border-gray-400 rounded-lg" required>
+                </td>
+                            
+                <td class="px-6 py-3">
+                   <input type="number" name="price[]" class="w-full p-2 border border-gray-400 rounded-lg" required>
+                </td>
+
+                <td class="px-6 py-3 text-center">
+                    <button type="button" onclick="this.closest('tr').remove()" class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-4 text-xs rounded-lg">
+                        ลบ
+                    </button>
+                </td>
+            `;
+            optionsContainer.appendChild(newRow);
+        }
+       
+        // ฟังก์ชันแสดงตัวอย่างภาพที่อัปโหลด
+        function previewImage(event, previewId) {
+            const previewContainer = document.getElementById(previewId); // หารูปภาพที่จะแสดง
+            const file = event.target.files[0]; // รับไฟล์ที่ผู้ใช้เลือก
+
+            if (file) {
+                const reader = new FileReader(); // ใช้ FileReader เพื่ออ่านไฟล์
+                reader.onload = function(e) {
+                    previewContainer.innerHTML = `<img src="${e.target.result}" alt="Preview" class="w-full h-full object-cover" />`;
+                }
+                reader.readAsDataURL(file); // อ่านไฟล์เป็น Data URL
+            } else {
+                previewContainer.innerHTML = `<span class="text-gray-400">รูปภาพ</span>`;
+            }
+        }
+
+    </script>
+
+{% endblock %}

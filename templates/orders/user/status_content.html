@@ -1,0 +1,37 @@
+{% if items %}
+    {% if item_type == "order" %}
+        <table class="w-full border-collapse border border-gray-300 mt-4">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="border p-2">หมายเลขออเดอร์</th>
+                    <th class="border p-2">สถานะ</th>
+                    <th class="border p-2">วันที่สั่งซื้อ</th>
+                    <th class="border p-2">ยอดรวม</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in items %}
+                <tr class="border">
+                    <td class="p-2">{{ order.order_code }}</td>
+                    <td class="p-2">{{ order.get_status_display }}</td>
+                    <td class="p-2">{{ order.order_date|date:"d M Y" }}</td>
+                    <td class="p-2">{{ order.total_price }} บาท</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% elif item_type == "review" %}
+        <div class="space-y-4 mt-4">
+            {% for review in items %}
+            <div class="p-4 border rounded-lg shadow-sm">
+                <strong class="block text-lg">สินค้า: {{ review.product.name }}</strong>
+                <span class="block text-yellow-500">⭐ {{ review.rating }}/5</span>
+                <p class="mt-2 text-gray-700">{{ review.comment }}</p>
+                <small class="text-gray-500">วันที่รีวิว: {{ review.created_at|date:"d M Y" }}</small>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% else %}
+    <p class="text-gray-500 mt-4">ไม่มีข้อมูลแสดงในขณะนี้</p>
+{% endif %}

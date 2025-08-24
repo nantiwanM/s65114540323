@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen pb-10">
+    <div class="max-w-5xl mx-4 md:mx-8 lg:mx-auto">
+        <div class="w-full bg-gray-700 rounded-lg shadow p-3 mb-6">
+            <h2 class="text-xl font-bold text-white mx-6">รายการบทความ</h2>
+        </div>
+        {% if articles %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+                {% for article in articles %}
+                    <div class="bg-white rounded-lg shadow">
+                        <a href="{% url 'article_detail' article.id %}">
+                            <img class="w-full h-48 object-cover rounded-t-lg" src="{{ article.image.url }}" alt="article image">
+                        </a>
+                        <div class="p-4">
+                            <span class="text-sm text-red-600">{{ article.get_category_display }}</span>
+                            <h2 class="mt-2 text-xl font-semibold text-gray-800">
+                                <a href="{% url 'article_detail' article.id %}" class="hover:underline">{{ article.title }}</a>
+                            </h2>
+                            <p class="mt-1 text-xs text-gray-500">{{ article.created_at|date:"j M Y" }}</p>
+                            <div class="flex items-center justify-start">
+                                <a href="{% url 'article_detail' article.id %}" class="mt-2 text-sm text-gray-500 hover:text-gray-700 flex items-center">
+                                    อ่านต่อ
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-red-600 ml-1">
+                                        <path fill-rule="evenodd" d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z" clip-rule="evenodd" />
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% include "components/user/pagination.html" with page_obj=page_obj query_params=query_params %}
+        {% else %}
+            <p class="text-gray-500 col-span-4 text-center">ไม่มีบทความในขณะนี้</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

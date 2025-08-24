@@ -1,0 +1,8 @@
+venv/
+
+# PyCharm
+.idea/
+
+# Python bytecode
+__pycache__/
+*.pyc

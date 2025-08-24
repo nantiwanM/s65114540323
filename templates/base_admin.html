@@ -1,0 +1,33 @@
+{% load static %}
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {% tailwind_css %}
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>CN Style Shop</title>
+
+        {% block extra_head %}
+
+        {% endblock %}
+    </head>
+    <body class="bg-gray-200">
+    
+        {% include 'components/admin/header.html' %}
+        {% include 'components/admin/sidebar.html' %}
+        
+        <main class="lg:ml-64 mt-[56px] px-8 pt-8">
+            {% block content %}
+            {% endblock %}
+        </main>
+        
+        <!-- JavaScript Libraries -->
+        
+        <!-- SweetAlert2 for pop-up notifications -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>    
+        <!-- HTMX for handling AJAX requests -->
+        <script src="https://unpkg.com/htmx.org@1.8.4"></script>
+    
+    </body>
+</html>

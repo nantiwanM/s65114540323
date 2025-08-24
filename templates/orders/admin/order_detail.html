@@ -1,0 +1,126 @@
+<div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6">
+    <!-- ส่วนหัวแสดงรายละเอียดคำสั่งซื้อ -->
+    <h1 class="text-2xl font-bold mb-6 flex items-center text-gray-800">
+        รายละเอียดคำสั่งซื้อ:
+        <span class="ml-2 text-blue-600">{{ order.order_code }}</span>
+    </h1>
+
+    <!-- ข้อมูลของลูกค้า -->
+    <div class="mb-6 p-6 border border-gray-300 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-4 flex items-center text-gray-800">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-blue-500 mr-3">
+                <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
+            </svg>
+            ข้อมูลลูกค้า
+        </h2>
+
+        <div class="space-y-3 px-6 text-gray-600">
+            <p>
+                <span class="font-semibold text-gray-700 mr-1">ชื่อ:</span>
+                {{ order.full_name }}
+            </p>
+            <p>
+                <span class="font-semibold text-gray-700 mr-1">เบอร์โทร:</span>
+                {{ order.phone }}
+            </p>
+        </div>
+    </div>
+
+    <!-- ที่อยู่ในการจัดส่ง -->
+    <div class="mb-6 p-6 border border-gray-300 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-blue-500 mr-2">
+              <path fill-rule="evenodd" d="m11.54 22.351.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 1.144-.742 19.58 19.58 0 0 0 2.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 0 0-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 0 0 2.682 2.282 16.975 16.975 0 0 0 1.145.742ZM12 13.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd" />
+            </svg>
+            ที่อยู่ในการจัดส่ง
+        </h2>
+
+        <p class="px-6 text-gray-600">{{ order.address }}</p>
+    </div>
+
+    <!-- รายละเอียดการสั่งซื้อ -->
+    <div class="mb-6 p-6 border border-gray-300 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-4 flex items-center">
+            รายละเอียดการสั่งซื้อ
+        </h2>
+        <div class="space-y-3 px-6 text-gray-600">
+            <p>
+                <span class="font-semibold text-gray-700 mr-1">ราคารวมทั้งหมด:</span>
+                <span class="text-xl font-semibold text-blue-600">{{ order.total_price }} บาท</span>
+            </p>
+            <p>
+                <span class="font-semibold text-gray-700 mr-1">วิธีการชำระเงิน:</span>
+                {{ order.get_payment_method_display }}
+            </p>
+            <p>
+                <span class="font-semibold text-gray-700 mr-1">สถานะ:</span>
+                <span class="
+                    {% if order.status == 'pending' %}
+                        bg-yellow-200 text-yellow-700
+                    {% elif order.status == 'paid' %}
+                        bg-blue-200 text-blue-700
+                    {% elif order.status == 'completed' %}
+                        bg-green-200 text-green-700
+                    {% elif order.status == 'cancelled' %}
+                        bg-red-200 text-red-700
+                    {% endif %}
+                    px-3 py-1 rounded-full font-semibold
+                ">
+                    {{ order.get_status_display }}
+                </span>
+            </p>
+            <p>
+                <span class="font-semibold text-gray-700 mr-1">วันที่สั่งซื้อ:</span>
+                {{ order.order_date }} น.
+            </p>
+        </div>
+    </div>
+
+    <!-- รูปภาพสลิปโอนเงิน -->
+    {% if order.payment_image %}
+    <div class="mb-6 p-6 border border-gray-300 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-4">
+            สลิปโอนเงิน
+        </h2>
+
+            <!-- รูปภาพสลิปโอนเงิน -->
+        <div class="flex justify-center">
+            <img src="{{ order.payment_image.url }}" alt="สลิปโอนเงิน" class="max-w-[300px] w-full h-auto rounded">
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- สินค้าในคำสั่งซื้อ -->
+    <div class="p-6 border border-gray-300 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-4 flex items-center">
+            สินค้าในคำสั่งซื้อ
+        </h2>
+
+        <!-- แสดงรายการสินค้า -->
+        <ul class="space-y-4">
+            {% for item in order.items.all %}
+            <li class="flex items-center p-6 bg-white rounded-lg shadow border border-gray-100">
+                <!-- รูปภาพของสินค้า -->
+                <img src="{{ item.product.cover_image.url }}" alt="{{ item.product.name }}" class="w-32 h-32 rounded object-cover mr-6">
+
+                <!-- ข้อมูลของสินค้า -->
+                <div class="flex-1">
+                    <p class="text-lg font-semibold">{{ item.product.name }}</p>
+                    <p class="text-sm text-gray-600">รหัสสินค้า: {{ item.product.id }}</p>
+                    <p class="text-sm text-gray-600">สี: {{ item.color }} | ขนาด: {{ item.size }}</p>
+
+                    <!-- ข้อมูลราคาและจำนวนสินค้า -->
+                    <p class="text-sm text-gray-600 flex justify-between">
+                        <span>ราคาต่อหน่วย: <span class="text-gray-800 font-semibold">{{ item.unit_price }} บาท</span></span>
+                        <span>จำนวน: <span class="text-gray-800 font-semibold">{{ item.quantity }}</span></span>
+                    </p>
+
+                    <p class="text-red-500 font-semibold flex justify-end mt-4 text-lg">
+                        รวมทั้งสิน: {{ item.total_price }} บาท
+                    </p>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>

@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen pb-10">
+    <div class="w-full p-2 shadow-lg mb-4 text-md text-white font-semibold bg-gray-700 sticky top-[72px]">
+        <h1 class="mx-10">หน้าชำระเงิน</h1>
+    </div>
+
+    <div class="max-w-4xl mb-4 mx-4 md:mx-8 lg:mx-auto p-10 bg-white shadow-lg rounded-lg">
+        <h2 class="text-2xl font-bold mb-6">หมายเลขคำสั่งซื้อ #
+            <span class="text-red-600">{{ order.order_code }}</span>
+        </h2>
+        <p class="text-sm text-gray-600 mb-3">วันที่สั่งซื้อ: {{ order.order_date }}</p>
+
+        <h3 class="text-xl font-semibold text-red-700 mb-5">รายละเอียดคำสั่งซื้อ</h3>
+
+        <div class="rounded-lg sm:px-8">
+            <div class=" bg-gray-100 p-4 rounded-lg">
+                <p class="text-md font-semibold text-gray-800">ที่อยู่ในการจัดส่ง</p>
+                <div class="mt-2 flex items-center space-x-4">
+                    <p class="text-gray-700"><strong>{{ order.full_name }}</strong></p>
+                    <p class="text-gray-600">{{ order.phone }}</p>
+                </div>
+                <p class="text-gray-600 mt-1">{{ order.address }}</p>
+            </div>
+        <div class="overflow-x-auto">
+            <table class=" mt-6 min-w-[400px] w-full text-sm md:text-base">
+                <thead>
+                    <tr class="text-left text-gray-600 border-b">
+                        <th class="p-3">สินค้า</th>
+                        <th class="p-3 text-right">ราคาต่อชิ้น</th>
+                        <th class="p-3 text-right">จำนวน</th>
+                        <th class="p-3 text-right">ราคารวม</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order_items %}
+                    <tr class="border-b hover:bg-gray-100">
+                        <td class="p-3 flex items-center gap-3">
+                            <img src="{{ item.product.cover_image.url }}" alt="{{ item.product.name }}"
+                                class="w-16 h-16 rounded-lg object-cover">
+                            <div>
+                                <p class="text-gray-800 font-medium">{{ item.product.name }}</p>
+                                <p class="text-gray-500 text-sm">{{ item.color }}, {{ item.size }}</p>
+                            </div>
+                        </td>
+                        <td class="p-3 text-right text-gray-800">฿{{ item.unit_price }}</td>
+                        <td class="p-3 text-right text-gray-800">
+                            <span class="border px-3 py-1 rounded-md bg-gray-100">{{ item.quantity }}</span>
+                        </td>
+                        <td class="p-3 text-right font-semibold text-gray-800">฿{{ item.total_price }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+            <div class="flex justify-end mt-6">
+                <p class="text-xl font-semibold text-gray-800">ยอดรวมทั้งหมด:
+                    <strong class="text-red-600 text-2xl">฿{{ order.total_price }}</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mb-4 mx-4 md:mx-8 lg:mx-auto p-10 bg-white  shadow-lg rounded-lg">
+        {% if order.status == "paid" %}
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-700">
+                <p class="font-semibold text-center">คุณได้ชำระเงินแล้ว</p>
+            </div>
+        {% else %}
+            <div class="bg-white">
+                <h3 class="text-xl font-semibold text-red-700 mb-5">ช่องทางการชำระเงิน</h3>
+
+                <!-- Bank Details Section -->
+                <div class="space-y-4 px-8">
+                    <div class="flex items-center justify-center space-x-8 border p-6 rounded-lg shadow bg-gray-100">
+                        <!-- QR Code -->
+                        <div class="w-40 h-40 border rounded-lg overflow-hidden">
+                            <img src="{% static 'images/qrcode.jpg'%}" alt="QR Code" class="w-full h-full object-cover">
+                        </div>
+
+                        <!-- ข้อมูลบัญชี -->
+                        <div class="text-lg">
+                            <p class="font-semibold text-gray-900">ธนาคาร:
+                                <span class="font-normal text-gray-700">ธนาคารกรุงไทย</span>
+                            </p>
+                            <p class="font-semibold text-gray-900 mt-4">เลขบัญชี:
+                                <span class="font-normal text-gray-700">123-456-7890</span>
+                            </p>
+                            <p class="font-semibold text-gray-900 mt-4">ชื่อบัญชี:
+                                <span class="font-normal text-gray-700">ร้านค้า ABC</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Upload Slip Form -->
+                    <form method="post" enctype="multipart/form-data" class="space-y-6">
+                        {% csrf_token %}
+
+                        <div class="mb-6 flex flex-col sm:flex-row items-center justify-center sm:space-x-8 border p-6 rounded-lg shadow bg-white">
+                            <!-- พื้นที่แสดงรูปตัวอย่าง (ซ้าย) -->
+                            <div id="previewContainer" class="w-72 h-80 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-md bg-gray-100 overflow-hidden mb-6 sm:mb-0">
+                                <span id="previewText" class="text-gray-500 text-sm">ยังไม่มีไฟล์ที่อัปโหลด</span>
+                                <img id="previewImage" class="hidden w-full h-full object-contain rounded-md shadow-md">
+                            </div>
+
+                            <!-- ช่องอัปโหลดไฟล์ (ขวา) -->
+                            <div class="flex flex-col border p-4 rounded-lg bg-gray-100 w-full sm:w-auto">
+                                <label for="payment_image" class="block text-sm font-medium text-gray-700">
+                                    อัปโหลดสลิปการโอนเงิน:
+                                </label>
+                                <input type="file" name="payment_image" id="payment_image" required
+                                    class="file-input file-input-bordered file-input-sm max-w-xs mt-6"
+                                    accept="image/png, image/jpeg" onchange="previewPaymentImage(event)">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end space-x-4">
+                            <!-- Cancel Button -->
+                            <a href="{% url "my_orders"  %}" class="w-40 text-gray-800 py-2 rounded-md border-2 border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-300 text-center inline-block">
+                                ยกเลิก
+                            </a>
+
+                            <!-- Confirm Payment Button -->
+                            <button type="submit" class="w-40 bg-red-500 text-white py-2 rounded-md hover:bg-red-600 focus:ring-4 focus:ring-blue-300">
+                                ยืนยันการชำระเงิน
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function previewPaymentImage(event) {
+        const file = event.target.files[0]; // ดึงไฟล์ที่อัปโหลด
+        const previewText = document.getElementById("previewText");
+        const previewImage = document.getElementById("previewImage");
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                previewImage.classList.remove("hidden"); // แสดงรูป
+                previewText.classList.add("hidden"); // ซ่อนข้อความ
+            };
+            reader.readAsDataURL(file); // แปลงไฟล์เป็น Data URL
+        } else {
+            previewImage.classList.add("hidden"); // ซ่อนรูป
+            previewText.classList.remove("hidden"); // แสดงข้อความ
+        }
+    }
+</script>
+{% endblock %}

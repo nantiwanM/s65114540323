@@ -1,0 +1,64 @@
+<!-- ตัวเลือกสินค้า -->
+<div id="product-options" class="mt-4">
+    {% if product_option_id %}
+        <input type="hidden" id="product_option_id" value="{{ product_option_id }}">
+    {% endif %}
+
+    <!-- ราคา -->
+    <div class="text-red-500 text-3xl font-bold mt-4">฿{{ price }}</div>
+    <div class="flex flex-wrap items-center gap-2 mt-6">
+        <h3 class="w-20">เลือกสี</h3>
+
+        {% for color in all_colors %}
+            <button class="w-auto h-10 px-4 border-2 rounded-lg text-md flex items-center justify-center transition duration-200 ease-in-out hover:shadow focus:outline-none
+                   {% if color == selected_color %} bg-red-100 text-red-600 border-red-500 font-semibold {% else %} border-gray-200 text-gray-700 {% endif %}
+                   {% if color not in available_colors %} bg-gray-200 text-gray-300 cursor-not-allowed {% endif %}"
+                    hx-get="{% url 'product-options' product_id %}?color={% if color == selected_color %} {% else %}{{ color }}{% endif %}{% if selected_size %}&size={{ selected_size }}{% endif %}"
+                    hx-target="#product-options"
+                    hx-trigger="click"
+                    {% if color not in available_colors %} disabled {% endif %}
+            >
+                {{ color }}
+            </button>
+        {% endfor %}
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2 mt-6">
+        <h3 class="w-20" >เลือกขนาด</h3>
+        {% for size in all_sizes %}
+            <button class="w-auto h-10 px-4 border-2 rounded-lg text-md flex items-center justify-center transition duration-200 ease-in-out hover:shadow focus:outline-none
+                   {% if size == selected_size %} bg-red-100 text-red-600 border-red-500 font-semibold {% else %}  border-gray-200 text-gray-700 {% endif %}
+                   {% if size not in available_sizes %} bg-gray-200 text-gray-300 cursor-not-allowed {% endif %}"
+                    hx-get="{% url 'product-options' product_id %}?size={% if size == selected_size %} {% else %}{{ size }}{% endif %}{% if selected_color %}&color={{ selected_color }}{% endif %}"
+                    hx-target="#product-options"
+                    hx-trigger="click"
+                    {% if size not in available_sizes %} disabled {% endif %}
+            >
+                {{ size }}
+            </button>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- JavaScript สำหรับอัปเดตจำนวน -->
+<script>
+    // จับเหตุการณ์ "htmx:afterSwap" (ทำงานทุกครั้งที่ HTMX โหลดข้อมูลใหม่)
+    document.addEventListener("htmx:afterSwap", function () {
+        const productOptionId = document.getElementById("product_option_id")?.value; // ใช้ Optional Chaining (?.) เพื่อเข้าถึง property value ขององค์ประกอบ หากองค์ประกอบนั้นมีอยู่จริง
+
+        // ถ้ามี productOptionId แสดงว่าเลือกสี+ขนาดครบแล้ว เปิดใช้งานปุ่ม "เพิ่มลงรถเข็น" และ "ซื้อสินค้า
+        if (productOptionId) {
+            // อัปเดตค่า option_id ในฟอร์ม "เพิ่มลงรถเข็น" และ "ซื้อสินค้า"
+            document.getElementById("cart-option-id").value = productOptionId;
+            document.getElementById("buy-option-id").value = productOptionId;
+            document.getElementById("add-to-cart").disabled = false;
+            document.getElementById("buy-now").disabled = false;
+        } else {
+            document.getElementById("add-to-cart").disabled = true;
+            document.getElementById("buy-now").disabled = true;
+        }
+    });
+</script>
+
+
+

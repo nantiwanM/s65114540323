@@ -1,0 +1,39 @@
+<div id="review-list">
+    {% for review in reviews %}
+        <div class="border border-gray-300 px-6 py-4 mt-4 rounded-lg bg-white shadow">
+            <div class="flex items-center space-x-3">
+                <img src="{{ review.user.profile_picture.url }}" class="w-10 h-10 rounded-full object-cover" alt="Profile">
+                <div>
+                    <p class="text-sm font-semibold">{{ review.user.username }}</p>
+                    <p class="text-sm text-gray-500">ตัวเลือกสินค้า: {{ review.order_item.color }}, {{ review.order_item.size }}</p>
+                </div>
+            </div>
+
+            <!-- คะแนนและคอมเมนต์ -->
+            <div class="flex mt-4">
+                {% for i in "12345" %}
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="w-4 h-4 {% if forloop.counter <= review.rating %}text-yellow-400{% else %}text-gray-300{% endif %}"
+                         fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 .587l3.668 7.431 8.167 1.185-5.917 5.766 1.396 8.142L12 18.897l-7.314 3.85 1.396-8.142-5.917-5.766 8.167-1.185z"/>
+                    </svg>
+                {% endfor %}
+            </div>
+            <p class="text-gray-700 mt-2">{{ review.comment }}</p>
+            <p class="text-xs text-gray-500 mt-2">{{ review.created_at|date:"d M Y" }}</p>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- ปุ่มโหลดเพิ่มเติม ให้รีวิวใหม่ ถูกเพิ่มต่อท้าย  -->
+<div id="load-more-container" class="text-center mt-6">
+    {% if page_obj.has_next %}
+        <button id="load-more"
+                class="px-5 py-2 bg-gray-900 text-white font-medium rounded-full shadow-sm hover:bg-gray-700 transition duration-300"
+                hx-get="{% url 'load_reviews' product_id %}?page={{ page_obj.next_page_number }}"
+                hx-target="#load-more-container"
+                hx-swap="outerHTML">
+            โหลดรีวิวเพิ่มเติม
+        </button>
+    {% endif %}
+</div>

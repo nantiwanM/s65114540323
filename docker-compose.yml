@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+  web:
+    build: .
+    ports:
+      - "10323:8000"  # host:container → เข้าเว็บได้ที่ localhost:10323
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    restart: always
+    env_file:
+      - .env
+    command: >
+      sh -c "
+      python manage.py migrate &&
+      python manage.py collectstatic --noinput &&
+      python manage.py loaddata fixtures/users.json &&
+      gunicorn CNStyleShop.wsgi:application --bind 0.0.0.0:8000 --workers 3
+      "
+
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_DB: cnstyleshop
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "20323:5432"   # host:container → PostgreSQL ออกพอร์ต 20323
+
+volumes:
+  postgres_data:

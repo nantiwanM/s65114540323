@@ -1,0 +1,197 @@
+{% extends 'base_admin.html' %}
+
+{% block content %}
+
+{% load static %}
+
+<div class="md:px-8 min-h-screen pb-6">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10">
+        <!-- Total Sales -->
+        <div class="bg-white shadow-md rounded-lg overflow-hidden w-full">
+            <div class="bg-gray-800 text-white px-6 py-3 flex justify-between items-center">
+                <p class="font-semibold text-lg">ยอดขายทั้งหมด</p>
+                <p class="text-gray-300 text-sm">เดือนนี้</p>
+            </div>
+            <div class="bg-white p-6 text-center">
+                <p class="text-red-600 text-4xl font-bold">฿{{ total_sales }}</p>
+            </div>
+        </div>
+
+        <!-- Products -->
+        <div class="bg-white shadow-md rounded-lg overflow-hidden w-full">
+            <a href="{% url 'product_list' %}">
+                <div class="bg-gray-800 text-white px-6 py-3 flex justify-between items-center">
+                    <p class="font-semibold text-lg">สินค้า</p>
+                    <p class="text-gray-300 text-sm">ทั้งหมด</p>
+                </div>
+                <div class="bg-white p-6 text-center">
+                    <p class="text-red-600 text-4xl font-bold">{{ total_products }} </p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Orders -->
+        <div class="bg-white shadow-md rounded-lg overflow-hidden w-full">
+            <a href="{% url 'order_list' %}">
+                <div class="bg-gray-800 text-white px-6 py-3 flex justify-between items-center">
+                    <p class="font-semibold text-lg">คำสั่งซื้อ</p>
+                    <p class="text-gray-300 text-sm">วันนี้</p>
+                </div>
+                <div class="bg-white p-6 text-center">
+                    <p class="text-red-600 text-4xl font-bold">{{ orders_today }}</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Best Selling Categories -->
+        <div class="bg-white shadow-md rounded-lg overflow-hidden w-full col-span-1 px-6 ">
+             <div class="py-3 border-b-2 border-gray-300">
+                <p class="text-gray-800 font-semibold mb-2 text-lg">ประเภทสินค้าที่ขายดีที่สุด</p>
+                <p class="text-gray-500  text-sm">เดือนนี้</p>
+            </div>
+            {% if best_category %}
+                <ul class="space-y-3 py-3 list-disc pl-5 max-h-[250px] overflow-y-auto">
+                    {% for category in best_category %}
+                        <li class="text-gray-700 font-medium hover:bg-gray-100 rounded-lg p-2 transition-all duration-200 ease-in-out">
+                            <span class="font-semibold text-gray-900">{{ category.category|capfirst }}</span> -
+                            <span class="text-red-600">{{ category.total_quantity }} ชิ้น</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-gray-600 text-sm text-center py-4">ไม่มีข้อมูลการขายสำหรับเดือนนี้</p>
+            {% endif %}
+
+        </div>
+
+        <!-- Feedback Analysis -->
+        <div class=" bg-white shadow-md rounded-lg overflow-hidden w-full pb-6 col-span-2 ">
+            <div class="flex justify-between items-center border-b-2 border-gray-300 py-4 px-6 ">
+                <div>
+                    <!-- Title Section -->
+                    <p class="text-gray-800 uppercase font-semibold text-lg">วิเคราะห์ข้อความรีวิวของสินค้าทั้งหมด</p>
+
+                    <!-- แสดงวันที่วิเคราะห์ล่าสุด และจำนวนรีวิวที่ยังไม่ได้วิเคราะห์ -->
+                    <div class="text-gray-600 text-xs flex items-center space-x-2 mt-2">
+                        <span>วันที่วิเคราะห์ล่าสุด:
+                            {% if latest_analysis_time %}
+                                {{ latest_analysis_time|date:"d/m/Y H:i" }}
+                            {% else %}
+                                ไม่มีการวิเคราะห์ข้อมูล
+                            {% endif %}
+                        </span>
+
+                        {% if unprocessed_review_count > 0 %}
+                            <span class="text-red-600 text-xs">
+                                ( มีรีวิวที่ยังไม่ได้วิเคราะห์จำนวน {{ unprocessed_review_count }} ข้อความ )
+                            </span>
+                        {% else %}
+                            <span class="text-green-600 text-xs">
+                                ( ล่าสุด )
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Analyze Reviews Button  analyze_reviews  (ลอง test) -->
+                <form id="analyzeForm" action="{% url 'analyze_reviews' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-blue-400 text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition duration-300 ease-in-out">
+                        <span id="btnText">อัปเดต</span>
+                        <span id="spinner" class="loading loading-spinner hidden"></span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- แสดง messages success/error-->
+            {% include "components/alert/alert_dashbord.html" with messages=messages %}
+
+            <p class="text-gray-800 font-bold text-xl text-center mt-4 ">ข้อความรีวิวมีทั้งหมด <span class="text-red-600">{{ total_reviews_product }}</span>  ข้อความ</p>
+
+            <div class="mt-4 bg-gray-800 text-white rounded-lg px-6 py-4 md:mx-20 mx-4 md:p-6 font-bold text-lg md:text-2xl space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="flex items-center text-green-400">
+                        <img src="{% static 'images/happy.svg' %}" alt="happy Logo" class="w-6 h-6 md:w-8 md:h-8 mr-2">
+                        Positive
+                    </span>
+                    <span class="font-bold">{{ sentiment_percentages.positive }} %</span>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <span class="flex items-center text-yellow-400">
+                        <img src="{% static 'images/neutral.svg' %}" alt="neutral Logo" class="w-6 h-6 md:w-8 md:h-8 mr-2">
+                        Neutral
+                    </span>
+                    <span class="font-bold">{{ sentiment_percentages.neutral }} %</span>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <span class="flex items-center text-red-400">
+                        <img src="{% static 'images/angry.svg' %}" alt="angry Logo" class="w-6 h-6 md:w-8 md:h-8 mr-2">
+                        Negative
+                    </span>
+                    <span class="font-bold">{{ sentiment_percentages.negative }} %</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto bg-white shadow-md rounded-lg overflow-hidden w-full mt-6 sm:mt-8 lg:mt-10 p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold ">วิเคราะห์ความคิดเห็นตามประเภทสินค้า</h2>
+            <a href="{% url 'product_analysis' %}" class=" text-blue-500 hover:text-blue-700">
+                ดูวิเคราะห์ความคิดเห็นแต่ละสินค้า
+            </a>
+        </div>
+
+        <!-- เส้นแบ่ง -->
+        <hr class="border-t-2 border-gray-300 mb-4">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {% for data in result %}
+
+                <div class="bg-stone-100 shadow-md rounded-lg overflow-hidden p-6">
+                    <h3 class="text-md font-semibold mb-2">{{ data.category|capfirst }}</h3>
+                    <p class="text-gray-600 text-xs mb-2">จำนวนรีวิวทั้งหมด {{ data.total_reviews }} ข้อความ</p>
+                    <hr class="border-t-2 border-gray-200 mb-4">
+
+                    <ul class="space-y-2 font-semibold">
+                        <li class="flex items-center justify-between">
+                            <span class="flex items-center text-green-400">
+                                <img src="{% static 'images/happy.svg' %}" alt="happy Logo" class="w-5 h-5 md:w-7 md:h-7 mr-2">
+                                Positive
+                            </span>
+                            <span>{{ data.positive_percentage }}%</span>
+                        </li>
+                        <li class="flex items-center justify-between">
+                            <span class="flex items-center text-yellow-500">
+                                <img src="{% static 'images/neutral.svg' %}" alt="happy Logo" class="w-5 h-5 md:w-7 md:h-7 mr-2">
+                                Neutral
+                            </span>
+                            <span>{{ data.neutral_percentage }}%</span>
+                        </li>
+                        <li class="flex items-center justify-between">
+                            <span class="flex items-center text-red-600">
+                                <img src="{% static 'images/angry.svg' %}" alt="happy Logo" class="w-5 h-5 md:w-7 md:h-7 mr-2">
+                                Negative
+                            </span>
+                            <span>{{ data.negative_percentage }}%</span>
+                        </li>
+                    </ul>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    document.getElementById("analyzeForm").addEventListener("submit", function() {
+        document.getElementById("btnText").classList.add("hidden");
+        document.getElementById("spinner").classList.remove("hidden");
+        document.getElementById("submitBtn").disabled = true;
+    });
+</script>
+{% endblock %}
