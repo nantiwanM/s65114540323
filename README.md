@@ -27,7 +27,7 @@
   หรือ
 
   ```bash
-  https://github.com/nantiwanM/s65114540323.git
+  git clone https://github.com/nantiwanM/s65114540323.git
   ```
 - เข้าไปยังโฟลเดอร์โปรเจกต์
 
