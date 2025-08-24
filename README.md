@@ -21,13 +21,13 @@
 - ใช้คำสั่ง:
 
   ```bash
-  gh repo clone nantiwanM/ST-DSSI-68
+  gh repo clone nantiwanM/s65114540323
   ```
 
   หรือ
 
   ```bash
-  git clone https://github.com/nantiwanM/ST-DSSI-68.git
+  https://github.com/nantiwanM/s65114540323.git
   ```
 - เข้าไปยังโฟลเดอร์โปรเจกต์
 
