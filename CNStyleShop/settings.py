@@ -31,21 +31,13 @@ SECRET_KEY = env('DJANGO_SECRET_KEY')
 DEBUG = env('DEBUG')
 
 # อนุญาตให้เว็บเข้าถึงจาก host ไหน
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    '202.28.49.122',
-    #'07238ce9b464.ngrok-free.app'
-]
+ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 
 # อนุญาตให้ POST/form request มาจากเว็บ/port ไหน
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:10323"
-    "http://localhost:8000",        # สำหรับ dev port ของคุณ
-    #"http://127.0.0.1:8000",
-    "http://202.28.49.122:8000",    # สำหรับ server IP + port ของคุณ
-    #"https://07238ce9b464.ngrok-free.app"
-]
+CSRF_TRUSTED_ORIGINS = env.list(
+    "DJANGO_CSRF_TRUSTED_ORIGINS",
+    default=["http://localhost:8000"],
+)
 
 # Application definition
 INSTALLED_APPS = [
@@ -146,11 +138,11 @@ DATABASES = {
     },
     'postgresql': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cnstyleshop',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': 'db',
-        'PORT': 5432,       # ต้องใช้พอร์ตภายในคอนเทนเนอร์ postgres (5432)
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': env.int('DB_PORT'),      # ต้องใช้พอร์ตภายในคอนเทนเนอร์ postgres (5432)
     },
 }
 DATABASES['default'] = DATABASES['postgresql']
