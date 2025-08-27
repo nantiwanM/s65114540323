@@ -42,7 +42,7 @@ ALLOWED_HOSTS = [
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:10323"
     "http://localhost:8000",        # สำหรับ dev port ของคุณ
-    "http://127.0.0.1:8000",
+    #"http://127.0.0.1:8000",
     "http://202.28.49.122:8000",    # สำหรับ server IP + port ของคุณ
     #"https://07238ce9b464.ngrok-free.app"
 ]
