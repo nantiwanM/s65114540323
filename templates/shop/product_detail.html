@@ -72,15 +72,16 @@
 
                     <!-- ปุ่ม disabled ถ้ายังไม่ login -->
                     <button type="submit"
-                            class="w-40 border border-red-500 px-4 py-2 rounded
+                            class="w-40 px-4 py-2 rounded disabled:cursor-not-allowed
                                    {% if not user.is_authenticated %}
                                         bg-gray-300 text-gray-600 cursor-not-allowed
                                    {% else %}
                                         bg-red-100 text-red-600
                                    {% endif %}"
                             id="add-to-cart"
-                            {% if not user.is_authenticated %}disabled{% endif %}>
-                            เพิ่มลงรถเข็น
+                            disabled
+                    >
+                        เพิ่มลงรถเข็น
                     </button>
 
                     <!-- ข้อความแจ้งเตือนด้านล่างปุ่ม -->

@@ -181,7 +181,11 @@ USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
-STATIC_URL = "/static/"
+# Prefix (รหัสนศ.)
+FORCE_SCRIPT_NAME = '/s65114540323'
+
+# Static files
+STATIC_URL = FORCE_SCRIPT_NAME + '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATICFILES_DIRS = [

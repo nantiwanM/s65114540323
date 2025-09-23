@@ -3,15 +3,13 @@ version: '3.9'
 services:
   web:
     build: .
-    ports:
-      - "10323:8000"  # host:container → เข้าเว็บได้ที่ localhost:10323
     volumes:
       - .:/app
+    env_file:
+      - .env
     depends_on:
       - db
     restart: always
-    env_file:
-      - .env
     command: >
       sh -c "
       python manage.py migrate &&
@@ -20,18 +18,40 @@ services:
       echo 'Step 3: Starting Gunicorn server...' &&
       gunicorn CNStyleShop.wsgi:application --bind 0.0.0.0:8000 --workers 3
       "
+    networks:
+      - default
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-public"
+
+      - "traefik.http.routers.${PREFIX}-router.rule=PathPrefix(`/${PREFIX}`)"
+      - "traefik.http.routers.${PREFIX}-router.entrypoints=web"
+      - "traefik.http.routers.${PREFIX}-router.middlewares=${PREFIX}-stripprefix-middleware@docker"
+
+      - "traefik.http.middlewares.${PREFIX}-stripprefix-middleware.stripprefix.prefixes=/${PREFIX}"
+
+      - "traefik.http.services.${PREFIX}-service.loadbalancer.server.port=${EXPOSEPORT}"
 
   db:
     image: postgres:16
     restart: always
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: cnstyleshop
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "20323:5432"   # host:container → PostgreSQL ออกพอร์ต 20323
+    networks:
+      - default
 
 volumes:
   postgres_data:
+
+networks:
+  default:
+    driver: bridge
+  traefik-public:
+    external: true
