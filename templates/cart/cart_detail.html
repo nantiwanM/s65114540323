@@ -93,8 +93,10 @@
 </div>
 
 <script>
+    const BASE_PATH = "{{ request.META.SCRIPT_NAME|default:'' }}";
+
     function updateQuantity(itemId, action, button) {
-        fetch(`/cart/update/${itemId}/`, {
+        fetch(`${BASE_PATH}/cart/update/${itemId}/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",

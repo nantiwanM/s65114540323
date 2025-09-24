@@ -117,6 +117,8 @@
 </div>
 
 <script>
+    const BASE_PATH = "{{ request.META.SCRIPT_NAME|default:'' }}";
+
     // จัดการเหตุการณ์การลบ ใช้ event delegation กับองค์ประกอบพ่อแม่ (#article-list)
     document.getElementById('article-list').addEventListener('click', function(event) {
         // ตรวจสอบว่า element ที่คลิกเป็นปุ่มลบหรือไม่
@@ -137,7 +139,7 @@
                 confirmButtonText: 'ยืนยันการลบ',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`/admin/article/delete/${articleID}/`, {
+                    fetch(`${BASE_PATH}/admin/article/delete/${articleID}/`, {
                         method: 'POST',
                         headers: {
                             'X-CSRFToken': '{{ csrf_token }}'

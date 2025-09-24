@@ -31,7 +31,6 @@ class ArticleForm(forms.ModelForm):
     image = forms.ImageField(
         widget=forms.ClearableFileInput(attrs={
             'class': 'file-input file-input-bordered file-input-sm w-full max-w-xs mt-2',
-            'accept': '.jpg, .jpeg, .png',
             'onchange': "previewImage(event, 'image_preview', 'placeholder_text')",
             'name': 'image',
         })

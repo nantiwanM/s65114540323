@@ -73,7 +73,6 @@ class UserProfileForm(forms.ModelForm):
         required=False,
         widget=forms.FileInput(attrs={
             'class': 'file-input file-input-bordered file-input-sm w-full max-w-xs mt-2',
-            'accept': '.jpg, .jpeg, .png',
         })
     )
 
